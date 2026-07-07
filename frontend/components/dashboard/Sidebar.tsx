@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
 import { LayoutDashboard, Lightbulb, CreditCard, Rocket, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -46,7 +45,6 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto flex items-center gap-3 border-t border-border pt-4">
-        <UserButton afterSignOutUrl="/" />
         <span className="text-sm text-muted-foreground">Account</span>
       </div>
     </aside>

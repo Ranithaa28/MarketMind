@@ -42,7 +42,7 @@ class User(Base):
     clerk_user_id: Mapped[str] = mapped_column(String, unique=True, index=True)
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
     full_name: Mapped[str | None] = mapped_column(String, nullable=True)
-    plan: Mapped[PlanTier] = mapped_column(Enum(PlanTier), default=PlanTier.FREE)
+    plan: Mapped[PlanTier] = mapped_column(Enum(PlanTier, values_callable=lambda x: [e.value for e in x]), default=PlanTier.FREE)
     stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -57,7 +57,7 @@ class Idea(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     title: Mapped[str] = mapped_column(String)
     raw_description: Mapped[str] = mapped_column(Text)
-    status: Mapped[IdeaStatus] = mapped_column(Enum(IdeaStatus), default=IdeaStatus.PENDING)
+    status: Mapped[IdeaStatus] = mapped_column(Enum(IdeaStatus, values_callable=lambda x: [e.value for e in x]), default=IdeaStatus.PENDING)
     is_archived: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Structured results produced by the LangGraph pipeline. Stored as JSON
@@ -92,7 +92,7 @@ class Report(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_uuid)
     idea_id: Mapped[str] = mapped_column(ForeignKey("ideas.id"), index=True)
-    format: Mapped[ReportFormat] = mapped_column(Enum(ReportFormat))
+    format: Mapped[ReportFormat] = mapped_column(Enum(ReportFormat, values_callable=lambda x: [e.value for e in x]))
     file_path: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -109,7 +109,7 @@ class ChatMessage(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=gen_uuid)
     idea_id: Mapped[str] = mapped_column(ForeignKey("ideas.id"), index=True)
-    role: Mapped[ChatRole] = mapped_column(Enum(ChatRole))
+    role: Mapped[ChatRole] = mapped_column(Enum(ChatRole, values_callable=lambda x: [e.value for e in x]))
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 

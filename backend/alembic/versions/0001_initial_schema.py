@@ -5,6 +5,7 @@ Revises:
 Create Date: 2026-01-01
 
 """
+# pyrefly: ignore [missing-import]
 import sqlalchemy as sa
 from alembic import op
 
@@ -21,10 +22,7 @@ chat_role = sa.Enum("user", "assistant", name="chatrole")
 
 def upgrade() -> None:
     bind = op.get_bind()
-    plan_tier.create(bind, checkfirst=True)
-    idea_status.create(bind, checkfirst=True)
-    report_format.create(bind, checkfirst=True)
-    chat_role.create(bind, checkfirst=True)
+    pass
 
     op.create_table(
         "users",

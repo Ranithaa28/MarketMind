@@ -43,7 +43,7 @@ export function ResultsView({ idea }: { idea: IdeaDetail }) {
         </TabsContent>
 
         <TabsContent value="competitors">
-          {idea.competitors?.competitors && <CompetitorTable competitors={idea.competitors.competitors} />}
+          {idea.competitors?.competitors && <CompetitorTable competitors={idea.competitors.competitors as any} />}
         </TabsContent>
 
         <TabsContent value="market">
@@ -55,7 +55,7 @@ export function ResultsView({ idea }: { idea: IdeaDetail }) {
         </TabsContent>
 
         <TabsContent value="locations">
-          {idea.locations?.recommendations && <LocationMap recommendations={idea.locations.recommendations} />}
+          {idea.locations?.recommendations && <LocationMap recommendations={idea.locations.recommendations as any} />}
         </TabsContent>
 
         <TabsContent value="strategy" className="space-y-6">

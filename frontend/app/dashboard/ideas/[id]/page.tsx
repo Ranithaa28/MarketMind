@@ -25,8 +25,8 @@ export default function IdeaDetailPage() {
   const getApi = useApiClient();
   const [idea, setIdea] = useState<IdeaDetail | null>(null);
   const [stageIndex, setStageIndex] = useState(0);
-  const pollRef = useRef<ReturnType<typeof setInterval>>();
-  const stageRef = useRef<ReturnType<typeof setInterval>>();
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stageRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     async function poll() {
