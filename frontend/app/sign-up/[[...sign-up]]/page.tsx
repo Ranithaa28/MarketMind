@@ -1,0 +1,15 @@
+import { SignUp } from "@clerk/nextjs";
+
+export default function SignUpPage() {
+  return (
+    <div className="flex min-h-screen items-center justify-center px-6">
+      <SignUp
+        appearance={{ variables: { colorPrimary: "hsl(258 90% 66%)" } }}
+        path="/sign-up"
+        routing="path"
+        signInUrl="/sign-in"
+        forceRedirectUrl="/dashboard"
+      />
+    </div>
+  );
+}
