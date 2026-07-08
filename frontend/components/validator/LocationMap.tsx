@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { APIProvider, Map, AdvancedMarker, InfoWindow, Pin } from "@vis.gl/react-google-maps";
+import { Map, Marker, Overlay } from "pigeon-maps";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
@@ -20,35 +20,15 @@ interface LocationRecommendation {
 
 export function LocationMap({ recommendations }: { recommendations: LocationRecommendation[] }) {
   const [selected, setSelected] = useState<LocationRecommendation | null>(null);
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!recommendations?.length) return null;
-
-  if (!apiKey) {
-    return (
-      <Card>
-        <CardHeader><CardTitle>Recommended Locations</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to render the interactive map. Showing a list instead:
-          </p>
-          {recommendations.map((r) => (
-            <div key={`${r.country}-${r.city}`} className="rounded-lg border border-border p-3 text-sm">
-              <p className="font-medium">{r.city}, {r.country}</p>
-              <p className="text-muted-foreground">{r.reasons}</p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
       <CardHeader><CardTitle>Recommended Locations</CardTitle></CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="md:col-span-1 space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
             {recommendations.map((r, i) => (
               <div 
                 key={`${r.country}-${r.city}`} 
@@ -66,49 +46,47 @@ export function LocationMap({ recommendations }: { recommendations: LocationReco
             ))}
           </div>
           
-          <div className="md:col-span-2 h-96 w-full overflow-hidden rounded-xl border border-border shadow-sm relative">
-            <APIProvider apiKey={apiKey}>
-              <Map
-                defaultCenter={{ lat: recommendations[0].latitude, lng: recommendations[0].longitude }}
-                defaultZoom={2}
-                mapId="marketmind_location_map"
-                gestureHandling="greedy"
-                disableDefaultUI={false}
-              >
-                {recommendations.map((r, i) => (
-                  <AdvancedMarker
-                    key={`${r.country}-${r.city}`}
-                    position={{ lat: r.latitude, lng: r.longitude }}
-                    onClick={() => setSelected(r)}
-                  >
-                    <div className="flex flex-col items-center">
-                      <MapPin className={`h-7 w-7 cursor-pointer drop-shadow-md transition-colors ${selected === r ? 'text-primary' : 'text-primary/70 hover:text-primary'}`} fill="currentColor" />
-                      <span className="mt-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-sm">
-                        {i + 1}
+          <div className="md:col-span-2 h-[500px] w-full overflow-hidden rounded-xl border border-border shadow-sm relative z-0">
+            <Map 
+              defaultCenter={[recommendations[0].latitude, recommendations[0].longitude]} 
+              defaultZoom={2}
+              center={selected ? [selected.latitude, selected.longitude] : undefined}
+              zoom={selected ? 4 : undefined}
+            >
+              {recommendations.map((r, i) => (
+                <Marker 
+                  key={`${r.country}-${r.city}`} 
+                  width={40} 
+                  anchor={[r.latitude, r.longitude]} 
+                  onClick={() => setSelected(r)}
+                >
+                  <div className="flex flex-col items-center -mt-8">
+                    <MapPin className={`h-7 w-7 cursor-pointer drop-shadow-md transition-colors ${selected === r ? 'text-primary scale-125' : 'text-primary/70 hover:text-primary'}`} fill="currentColor" />
+                    <span className="mt-0.5 rounded bg-background/90 px-1.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-sm shadow-sm border border-border">
+                      {i + 1}
+                    </span>
+                  </div>
+                </Marker>
+              ))}
+
+              {selected && (
+                <Overlay anchor={[selected.latitude, selected.longitude]} offset={[125, 140]}>
+                  <div className="w-[250px] rounded-lg bg-background p-3 shadow-xl border border-border z-50">
+                    <div className="flex justify-between items-start">
+                      <p className="font-bold text-base text-foreground">{selected.city}, {selected.country}</p>
+                      <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground">✕</button>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{selected.reasons}</p>
+                    <div className="mt-3 flex items-center justify-between text-xs border-t border-border pt-2">
+                      <span className="font-medium text-foreground">Competition:</span>
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary capitalize">
+                        {selected.competition_level}
                       </span>
                     </div>
-                  </AdvancedMarker>
-                ))}
-
-                {selected && (
-                  <InfoWindow
-                    position={{ lat: selected.latitude, lng: selected.longitude }}
-                    onCloseClick={() => setSelected(null)}
-                  >
-                    <div className="max-w-[250px] text-sm text-foreground bg-background p-1">
-                      <p className="font-semibold text-base">{selected.city}, {selected.country}</p>
-                      <p className="mt-2 text-xs text-muted-foreground">{selected.reasons}</p>
-                      <div className="mt-3 flex items-center justify-between text-xs">
-                        <span className="font-medium">Competition:</span>
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary capitalize">
-                          {selected.competition_level}
-                        </span>
-                      </div>
-                    </div>
-                  </InfoWindow>
-                )}
-              </Map>
-            </APIProvider>
+                  </div>
+                </Overlay>
+              )}
+            </Map>
           </div>
         </div>
       </CardContent>

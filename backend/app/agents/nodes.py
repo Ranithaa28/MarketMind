@@ -167,13 +167,15 @@ def node_business_strategy(state: IdeaState) -> dict:
 
 def node_success_score(state: IdeaState) -> dict:
     system = (
-        "You are an impartial startup evaluator. Rate these 10 factors for "
-        "the idea, each 0-10, with a one-sentence reason grounded in the data "
-        "provided: market_demand, competition, innovation, "
-        "technology_complexity, scalability, revenue_potential, "
-        "execution_difficulty, funding_availability, timing, risk. Respond "
-        "ONLY as JSON: {\"<factor>\": {\"score\": number, \"reason\": string}, ...} "
-        "for all 10 factors."
+        "You are a highly critical, brutal but fair venture capitalist evaluator. "
+        "Most startup ideas fail. Rate these 10 factors for the idea, each 0-10, with "
+        "a one-sentence reason grounded in the data provided. Use the FULL 0-10 scale. "
+        "Do NOT sugarcoat. Average ideas should score 3-5. Only generational companies "
+        "deserve 9-10. Do not blindly give 8s. Be extremely harsh on execution, risk, "
+        "and competition. The factors are: market_demand, competition, innovation, "
+        "technology_complexity, scalability, revenue_potential, execution_difficulty, "
+        "funding_availability, timing, risk. Respond ONLY as JSON: "
+        "{\\\"<factor>\\\": {\\\"score\\\": number, \\\"reason\\\": string}, ...} for all 10 factors."
     )
     user = (
         f"Idea: {state.get('core_concept')}\n"

@@ -9,6 +9,7 @@ import { InvestmentBreakdown } from "@/components/validator/InvestmentBreakdown"
 import { SwotGrid } from "@/components/validator/SwotGrid";
 import { CanvasView } from "@/components/validator/CanvasView";
 import { LocationMap } from "@/components/validator/LocationMap";
+import { StrategyView } from "@/components/validator/StrategyView";
 import { ChatPanel } from "@/components/validator/ChatPanel";
 import { ReportActions } from "@/components/validator/ReportActions";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +63,7 @@ export function ResultsView({ idea }: { idea: IdeaDetail }) {
           {idea.swot && <SwotGrid swot={idea.swot} />}
           {idea.lean_canvas && <CanvasView title="Lean Canvas" canvas={idea.lean_canvas} />}
           {idea.business_model_canvas && <CanvasView title="Business Model Canvas" canvas={idea.business_model_canvas} />}
-          {idea.strategy && <CanvasView title="Business Strategy" canvas={idea.strategy} />}
+          {idea.strategy && <StrategyView strategy={idea.strategy as any} />}
         </TabsContent>
 
         <TabsContent value="chat">
