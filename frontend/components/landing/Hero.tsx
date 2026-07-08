@@ -52,12 +52,12 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          <Link href="/sign-up">
-            <Button size="lg" className="group">
+          <Button asChild size="lg" className="group">
+            <Link href="/sign-up">
               Validate my idea for free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <a href="#features">
             <Button size="lg" variant="outline">See how it works</Button>
           </a>

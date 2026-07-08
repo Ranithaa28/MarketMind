@@ -24,11 +24,14 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <SignedOut>
-            <Link href="/sign-in"><Button variant="ghost" size="sm">Log in</Button></Link>
-            <Link href="/sign-up"><Button size="sm">Get started</Button></Link>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/sign-in">Login</Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/sign-up">Sign up</Link>
+            </Button>
           </SignedOut>
           <SignedIn>
-            <Link href="/dashboard"><Button size="sm">Dashboard</Button></Link>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
