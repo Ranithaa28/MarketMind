@@ -48,43 +48,75 @@ export function LocationMap({ recommendations }: { recommendations: LocationReco
     <Card>
       <CardHeader><CardTitle>Recommended Locations</CardTitle></CardHeader>
       <CardContent>
-        <div className="h-96 w-full overflow-hidden rounded-xl">
-          <Map
-            mapboxAccessToken={token}
-            initialViewState={{ longitude: recommendations[0].longitude, latitude: recommendations[0].latitude, zoom: 1.4 }}
-            style={{ width: "100%", height: "100%" }}
-            mapStyle="mapbox://styles/mapbox/dark-v11"
-          >
-            <NavigationControl position="top-right" />
-            {recommendations.map((r) => (
-              <Marker
-                key={`${r.country}-${r.city}`}
-                longitude={r.longitude}
-                latitude={r.latitude}
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  setSelected(r);
-                }}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1 space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+            {recommendations.map((r, i) => (
+              <div 
+                key={`${r.country}-${r.city}`} 
+                className={`rounded-lg border p-4 cursor-pointer transition-colors ${selected === r ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted/50'}`}
+                onClick={() => setSelected(r)}
               >
-                <MapPin className="h-6 w-6 cursor-pointer text-primary drop-shadow" fill="currentColor" />
-              </Marker>
-            ))}
-            {selected && (
-              <Popup
-                longitude={selected.longitude}
-                latitude={selected.latitude}
-                onClose={() => setSelected(null)}
-                closeOnClick={false}
-                anchor="bottom"
-              >
-                <div className="max-w-xs text-sm text-black">
-                  <p className="font-semibold">{selected.city}, {selected.country}</p>
-                  <p className="mt-1">{selected.reasons}</p>
-                  <p className="mt-1"><b>Competition:</b> {selected.competition_level}</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-semibold text-primary">
+                    {i + 1}
+                  </div>
+                  <h3 className="font-semibold leading-tight">{r.city}, {r.country}</h3>
                 </div>
-              </Popup>
-            )}
-          </Map>
+                <p className="text-xs text-muted-foreground line-clamp-3">{r.reasons}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="md:col-span-2 h-96 w-full overflow-hidden rounded-xl border border-border shadow-sm relative">
+            <Map
+              mapboxAccessToken={token}
+              initialViewState={{ longitude: recommendations[0].longitude, latitude: recommendations[0].latitude, zoom: 1.4 }}
+              style={{ width: "100%", height: "100%" }}
+              mapStyle="mapbox://styles/mapbox/dark-v11"
+            >
+              <NavigationControl position="top-right" />
+              {recommendations.map((r, i) => (
+                <Marker
+                  key={`${r.country}-${r.city}`}
+                  longitude={r.longitude}
+                  latitude={r.latitude}
+                  onClick={(e) => {
+                    e.originalEvent.stopPropagation();
+                    setSelected(r);
+                  }}
+                >
+                  <div className="flex flex-col items-center">
+                    <MapPin className={`h-7 w-7 cursor-pointer drop-shadow-md transition-colors ${selected === r ? 'text-primary' : 'text-primary/70 hover:text-primary'}`} fill="currentColor" />
+                    <span className="mt-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-sm">
+                      {i + 1}
+                    </span>
+                  </div>
+                </Marker>
+              ))}
+              {selected && (
+                <Popup
+                  longitude={selected.longitude}
+                  latitude={selected.latitude}
+                  onClose={() => setSelected(null)}
+                  closeOnClick={false}
+                  anchor="bottom"
+                  offset={15}
+                  className="rounded-lg shadow-lg"
+                >
+                  <div className="max-w-[250px] text-sm text-foreground bg-background p-1">
+                    <p className="font-semibold text-base">{selected.city}, {selected.country}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{selected.reasons}</p>
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <span className="font-medium">Competition:</span>
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary capitalize">
+                        {selected.competition_level}
+                      </span>
+                    </div>
+                  </div>
+                </Popup>
+              )}
+            </Map>
+          </div>
         </div>
       </CardContent>
     </Card>

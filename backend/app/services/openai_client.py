@@ -39,8 +39,22 @@ def generate_json(system_prompt: str, user_prompt: str, temperature: float = 0.3
         ],
     )
     content = response.choices[0].message.content or "{}"
+    
+    # Clean markdown formatting if present
+    content = content.strip()
+    if content.startswith("```json"):
+        content = content[7:]
+    elif content.startswith("```"):
+        content = content[3:]
+    if content.endswith("```"):
+        content = content[:-3]
+    content = content.strip()
+    
     try:
-        return json.loads(content)
+        parsed = json.loads(content)
+        if not isinstance(parsed, dict):
+            return {}
+        return parsed
     except json.JSONDecodeError:
         # Fall back to an empty structure rather than crashing the pipeline;
         # the caller is responsible for validating required keys.

@@ -41,7 +41,7 @@ def validate_idea_task(idea_id: str) -> None:
         idea.strategy = result.get("strategy")
         idea.success_score = result.get("success_score")
         idea.error_message = result.get("error")
-        idea.status = IdeaStatus.FAILED if result.get("error") else IdeaStatus.COMPLETE
+        idea.status = IdeaStatus.FAILED if (result.get("error") and not result.get("core_concept")) else IdeaStatus.COMPLETE
         db.commit()
     finally:
         db.close()
