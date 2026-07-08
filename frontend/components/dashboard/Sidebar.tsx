@@ -17,8 +17,8 @@ const links = [
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-border bg-card/40 p-4">
-      <Link href="/" className="mb-8 flex items-center gap-2 px-2 font-semibold">
+    <aside className="flex h-screen w-64 flex-col border-r border-border bg-background p-4">
+      <Link href="/" className="mb-8 flex items-center gap-2 px-2 font-bold tracking-tight">
         <Rocket className="h-5 w-5 text-primary" /> MarketMind
       </Link>
 
@@ -36,8 +36,8 @@ export function Sidebar() {
               key={l.href}
               href={l.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground",
-                active && "bg-muted text-foreground"
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
+                active ? "bg-muted text-foreground" : "text-muted-foreground"
               )}
             >
               <l.icon className="h-4 w-4" /> {l.label}

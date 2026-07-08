@@ -19,9 +19,9 @@ function Section({ title, icon: Icon, content, list }: { title: string, icon: an
   if (!content && safeList.length === 0) return null;
   
   return (
-    <div className="rounded-xl border border-border bg-card/50 p-5 shadow-sm">
-      <div className="flex items-center gap-3 mb-4 border-b border-border/50 pb-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+    <div className="rounded-xl border border-border bg-transparent p-5">
+      <div className="flex items-center gap-3 mb-4 border-b border-border pb-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground text-background">
           <Icon className="h-5 w-5" />
         </div>
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>

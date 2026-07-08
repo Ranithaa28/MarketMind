@@ -7,8 +7,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden px-6 pb-24 pt-20 md:pt-32">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_hsl(258_90%_66%/0.18),_transparent_60%)]" />
+    <section className="relative overflow-hidden px-6 pb-24 pt-20 md:pt-40">
       <div className="mx-auto max-w-4xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -20,27 +19,19 @@ export function Hero() {
           AI-powered market research in minutes, not weeks
         </motion.div>
         <motion.h1
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl font-bold tracking-tight md:text-6xl"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          className="text-5xl font-extrabold tracking-tight md:text-7xl leading-tight"
         >
-          Validate your startup idea<br className="hidden md:block" />
-          <span className="gradient-text"> before you build it</span>
+          Validate your startup idea.<br className="hidden md:block" />
+          <span className="text-muted-foreground font-medium">Before you build it.</span>
         </motion.h1>
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="mt-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary"
-        >
-          Validate. Analyze. Launch.
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          className="mx-auto mt-8 max-w-2xl text-xl text-muted-foreground leading-relaxed"
         >
           Describe your idea in one sentence. Our AI agent researches competitors, sizes
           the market, estimates investment, and scores your odds of success — with a

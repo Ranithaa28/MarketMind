@@ -36,11 +36,11 @@ export function Pricing() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-2xl text-center"
         >
-          <h2 className="text-3xl font-bold md:text-4xl">Simple, transparent pricing</h2>
-          <p className="mt-3 text-muted-foreground">Start free. Upgrade when you're validating more than one idea a month.</p>
+          <h2 className="text-3xl font-bold tracking-tight md:text-5xl">Simple, transparent pricing.</h2>
+          <p className="mt-4 text-lg text-muted-foreground">Start free. Upgrade when you're validating more than one idea a month.</p>
         </motion.div>
         <motion.div
           variants={container}
@@ -51,24 +51,24 @@ export function Pricing() {
         >
           {plans.map((p) => (
             <motion.div key={p.name} variants={item}>
-              <Card className="h-full">
+              <Card className="h-full border-border bg-transparent shadow-none hover:bg-muted/30 transition-colors duration-500">
                 <CardHeader>
-                  <CardTitle>{p.name}</CardTitle>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">{p.price}</span>
-                    <span className="text-sm text-muted-foreground">{p.period}</span>
+                  <CardTitle className="text-lg font-medium text-muted-foreground">{p.name}</CardTitle>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-5xl font-bold tracking-tight">{p.price}</span>
+                    <span className="text-sm font-medium text-muted-foreground">{p.period}</span>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ul className="mb-6 space-y-2 text-sm">
+                <CardContent className="mt-6">
+                  <ul className="mb-8 space-y-3 text-sm">
                     {p.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-muted-foreground">
+                      <li key={f} className="flex items-center gap-3 text-foreground">
                         <Check className="h-4 w-4 text-primary" /> {f}
                       </li>
                     ))}
                   </ul>
                   <Link href="/sign-up">
-                    <Button className="w-full" variant="outline">{p.cta}</Button>
+                    <Button className="w-full h-12" variant={p.name === 'Pro' ? 'default' : 'outline'}>{p.cta}</Button>
                   </Link>
                 </CardContent>
               </Card>

@@ -3,7 +3,10 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { GlobalChatWidget } from "@/components/ui/GlobalChatWidget";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "MarketMind — Validate. Analyze. Launch.",
@@ -14,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className="min-h-screen antialiased">
+        <body className={`${inter.className} min-h-screen antialiased bg-background text-foreground`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

@@ -37,10 +37,10 @@ export function Features() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mx-auto max-w-2xl text-center"
         >
-          <h2 className="text-3xl font-bold md:text-4xl">Everything you need to validate, before you spend a dollar building</h2>
+          <h2 className="text-3xl font-bold tracking-tight md:text-5xl">Everything you need to validate. <span className="text-muted-foreground font-medium">Before you spend a dollar.</span></h2>
         </motion.div>
         <motion.div
           variants={container}
@@ -51,14 +51,14 @@ export function Features() {
         >
           {features.map((f) => (
             <motion.div key={f.title} variants={item}>
-              <Card className="glass h-full">
+              <Card className="h-full border-border bg-transparent shadow-none hover:bg-muted/30 transition-colors duration-500">
                 <CardHeader>
-                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-foreground text-background">
                     <f.icon className="h-5 w-5" />
                   </div>
-                  <CardTitle>{f.title}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{f.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">{f.desc}</CardContent>
+                <CardContent className="text-sm text-muted-foreground leading-relaxed">{f.desc}</CardContent>
               </Card>
             </motion.div>
           ))}

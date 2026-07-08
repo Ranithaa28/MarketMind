@@ -29,11 +29,11 @@ export function CanvasView({ title, canvas }: { title: string; canvas: Record<st
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Object.entries(canvas).map(([key, value]) => (
-          <div key={key} className="rounded-xl border border-border p-3">
-            <p className="mb-1 text-xs font-medium capitalize text-muted-foreground">
+          <div key={key} className="rounded-xl border bg-transparent p-4">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {key.replace(/_/g, " ")}
             </p>
-            <p className="text-sm">{renderValue(value)}</p>
+            <p className="text-sm font-medium leading-relaxed">{renderValue(value)}</p>
           </div>
         ))}
       </CardContent>
