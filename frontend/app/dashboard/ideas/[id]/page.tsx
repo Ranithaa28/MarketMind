@@ -72,9 +72,23 @@ export default function IdeaDetailPage() {
   if (idea.status === "failed") {
     return (
       <Card>
-        <CardContent className="py-10 text-center">
-          <p className="font-medium text-red-500">Validation failed</p>
-          <p className="mt-2 text-sm text-muted-foreground">{idea.error_message}</p>
+        <CardContent className="flex flex-col items-center gap-4 py-10 text-center">
+          <div>
+            <p className="font-medium text-red-500">Validation failed</p>
+            <p className="mt-2 text-sm text-muted-foreground">{idea.error_message}</p>
+          </div>
+          <button 
+            onClick={async () => {
+              const api = await getApi();
+              await api.post(`/api/ideas/${id}/revalidate`);
+              setIdea({ ...idea, status: "pending" });
+              setStageIndex(0);
+              // The interval will automatically start picking up the new status
+            }}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Retry Validation
+          </button>
         </CardContent>
       </Card>
     );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 import { useApiClient } from "@/lib/useApiClient";
 import type { IdeaSummary } from "@/lib/api";
 import { StatsCards } from "@/components/dashboard/StatsCards";
@@ -18,7 +19,7 @@ const statusVariant: Record<string, "default" | "success" | "warning" | "destruc
 };
 
 export default function DashboardOverviewPage() {
-  const user = { firstName: "Developer" };
+  const { user } = useUser();
   const getApi = useApiClient();
   const [ideas, setIdeas] = useState<IdeaSummary[]>([]);
   const [loading, setLoading] = useState(true);

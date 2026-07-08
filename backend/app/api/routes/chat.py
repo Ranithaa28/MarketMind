@@ -9,6 +9,8 @@ from app.services.openai_client import generate_text
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
+from pydantic import BaseModel
+
 SYSTEM_PROMPT = (
     "You are an expert startup advisor embedded in a validation platform. You "
     "have access to the structured analysis already generated for this "
@@ -19,6 +21,28 @@ SYSTEM_PROMPT = (
     "Keep answers concise and concrete."
 )
 
+GENERAL_SYSTEM_PROMPT = (
+    "You are MarketMind, an expert AI startup advisor and market research assistant. "
+    "You help users refine their startup ideas, understand market trends, "
+    "and navigate the MarketMind platform. Keep answers concise, actionable, and friendly."
+)
+
+class GeneralChatRequest(BaseModel):
+    message: str
+    history: list[dict[str, str]] = []
+
+@router.post("/general")
+def send_general_message(
+    payload: GeneralChatRequest,
+    user: User = Depends(get_or_create_db_user)
+):
+    context_lines = ["--- CONVERSATION HISTORY ---"]
+    for msg in payload.history:
+        context_lines.append(f"{msg.get('role', 'user').upper()}: {msg.get('content', '')}")
+    context_lines.append(f"USER: {payload.message}")
+
+    reply_text = generate_text(GENERAL_SYSTEM_PROMPT, "\n".join(context_lines))
+    return {"role": "assistant", "content": reply_text}
 
 @router.get("/{idea_id}", response_model=list[ChatMessageOut])
 def get_history(idea_id: str, db: Session = Depends(get_db), user: User = Depends(get_or_create_db_user)):

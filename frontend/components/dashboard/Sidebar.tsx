@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import { LayoutDashboard, Lightbulb, CreditCard, Rocket, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -44,8 +46,12 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto flex items-center gap-3 border-t border-border pt-4">
-        <span className="text-sm text-muted-foreground">Account</span>
+      <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+        <div className="flex items-center gap-3">
+          <UserButton afterSignOutUrl="/" />
+          <span className="text-sm text-muted-foreground">Account</span>
+        </div>
+        <ThemeToggle />
       </div>
     </aside>
   );

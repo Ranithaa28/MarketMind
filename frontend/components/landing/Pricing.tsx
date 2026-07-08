@@ -11,39 +11,70 @@ const plans = [
   { name: "Enterprise", price: "Custom", period: "", features: ["Team seats", "Priority support", "Custom integrations", "SLA"], cta: "Contact sales" },
 ];
 
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, scale: 0.95, y: 20 },
+  show: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 export function Pricing() {
   return (
     <section id="pricing" className="px-6 py-24">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-2xl text-center"
+        >
           <h2 className="text-3xl font-bold md:text-4xl">Simple, transparent pricing</h2>
           <p className="mt-3 text-muted-foreground">Start free. Upgrade when you're validating more than one idea a month.</p>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        </motion.div>
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mt-14 grid gap-6 md:grid-cols-3"
+        >
           {plans.map((p) => (
-            <Card key={p.name} className={p.highlight ? "border-primary shadow-lg shadow-primary/10" : ""}>
-              <CardHeader>
-                <CardTitle>{p.name}</CardTitle>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">{p.price}</span>
-                  <span className="text-sm text-muted-foreground">{p.period}</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="mb-6 space-y-2 text-sm">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="h-4 w-4 text-primary" /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/sign-up">
-                  <Button className="w-full" variant={p.highlight ? "default" : "outline"}>{p.cta}</Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <motion.div key={p.name} variants={item}>
+              <Card className={p.highlight ? "border-primary shadow-lg shadow-primary/10 h-full" : "h-full"}>
+                <CardHeader>
+                  <CardTitle>{p.name}</CardTitle>
+                  <div className="mt-2 flex items-baseline gap-1">
+                    <span className="text-3xl font-bold">{p.price}</span>
+                    <span className="text-sm text-muted-foreground">{p.period}</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="mb-6 space-y-2 text-sm">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/sign-up">
+                    <Button className="w-full" variant={p.highlight ? "default" : "outline"}>{p.cta}</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

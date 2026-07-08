@@ -51,9 +51,14 @@ def node_web_search(state: IdeaState) -> dict:
     context: list[dict] = []
     for kw in keywords[:4]:
         context.extend(gather_web_context(kw))
+    # Truncate content of each snippet to avoid massive payloads
+    for c in context:
+        if c.get("content") and isinstance(c["content"], str):
+            c["content"] = c["content"][:400]
+            
     trend_kw = state.get("core_concept", {}).get("category") or keywords[0]
     trend = get_trend_score(trend_kw)
-    return {"web_context": context[:20], "trend_signal": trend}
+    return {"web_context": context[:8], "trend_signal": trend}
 
 
 def node_competitor_analysis(state: IdeaState) -> dict:

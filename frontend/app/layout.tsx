@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { GlobalChatWidget } from "@/components/ui/GlobalChatWidget";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,11 +12,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-      <html lang="en" className="dark">
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
         <body className="min-h-screen antialiased">
-          {children}
-          <Toaster richColors position="top-right" />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <GlobalChatWidget />
+            <Toaster richColors position="top-right" />
+          </ThemeProvider>
         </body>
       </html>
+    </ClerkProvider>
   );
 }
