@@ -14,8 +14,9 @@ interface StrategyData {
   customer_acquisition?: string[];
 }
 
-function Section({ title, icon: Icon, content, list }: { title: string, icon: any, content?: string, list?: string[] }) {
-  if (!content && (!list || list.length === 0)) return null;
+function Section({ title, icon: Icon, content, list }: { title: string, icon: any, content?: string, list?: any }) {
+  const safeList = Array.isArray(list) ? list : (list ? [String(list)] : []);
+  if (!content && safeList.length === 0) return null;
   
   return (
     <div className="rounded-xl border border-border bg-card/50 p-5 shadow-sm">
@@ -28,9 +29,9 @@ function Section({ title, icon: Icon, content, list }: { title: string, icon: an
       
       {content && <p className="text-sm leading-relaxed text-muted-foreground">{content}</p>}
       
-      {list && list.length > 0 && (
+      {safeList.length > 0 && (
         <ul className="space-y-3 mt-2">
-          {list.map((item, i) => (
+          {safeList.map((item, i) => (
             <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
               <CheckCircle2 className="h-5 w-5 shrink-0 text-primary/70 mt-0.5" />
               <span className="leading-relaxed">{item}</span>

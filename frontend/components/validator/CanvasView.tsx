@@ -7,8 +7,21 @@ function renderValue(v: unknown) {
   return String(v ?? "—");
 }
 
-export function CanvasView({ title, canvas }: { title: string; canvas: Record<string, unknown> }) {
+export function CanvasView({ title, canvas }: { title: string; canvas: Record<string, unknown> | string }) {
   if (!canvas) return null;
+  if (typeof canvas !== "object" || Array.isArray(canvas)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{String(canvas)}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

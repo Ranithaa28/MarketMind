@@ -28,7 +28,7 @@ export function SwotGrid({ swot }: { swot: Swot }) {
           <div key={q.key} className={`rounded-xl border p-4 ${q.color}`}>
             <p className="mb-2 text-sm font-semibold">{q.label}</p>
             <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-              {(swot[q.key] ?? []).map((item) => <li key={item}>{item}</li>)}
+              {(Array.isArray(swot[q.key]) ? swot[q.key] : (swot[q.key] ? [String(swot[q.key])] : [])).map((item) => <li key={item}>{item}</li>)}
             </ul>
           </div>
         ))}
