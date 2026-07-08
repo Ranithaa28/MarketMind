@@ -7,8 +7,8 @@ import { Check } from "lucide-react";
 
 const plans = [
   { name: "Free", price: "$0", period: "/mo", features: ["1 idea validation / month", "Core market research", "Community support"], cta: "Start free" },
-  { name: "Pro", price: "$29", period: "/mo", highlight: true, features: ["Unlimited validations", "Full reports (PDF & DOCX)", "AI advisor chat", "Location recommendations"], cta: "Upgrade to Pro" },
-  { name: "Enterprise", price: "Custom", period: "", features: ["Team seats", "Priority support", "Custom integrations", "SLA"], cta: "Contact sales" },
+  { name: "Pro", price: "$29", period: "/mo", highlight: false, features: ["Unlimited validations", "Full reports (PDF & DOCX)", "AI advisor chat", "Location recommendations"], cta: "Pay via Admin ID" },
+  { name: "Enterprise", price: "Custom", period: "", features: ["Team seats", "Priority support", "Custom integrations", "SLA"], cta: "Pay via Admin ID" },
 ];
 
 import { motion } from "framer-motion";
@@ -51,7 +51,7 @@ export function Pricing() {
         >
           {plans.map((p) => (
             <motion.div key={p.name} variants={item}>
-              <Card className={p.highlight ? "border-primary shadow-lg shadow-primary/10 h-full" : "h-full"}>
+              <Card className="h-full">
                 <CardHeader>
                   <CardTitle>{p.name}</CardTitle>
                   <div className="mt-2 flex items-baseline gap-1">
@@ -68,7 +68,7 @@ export function Pricing() {
                     ))}
                   </ul>
                   <Link href="/sign-up">
-                    <Button className="w-full" variant={p.highlight ? "default" : "outline"}>{p.cta}</Button>
+                    <Button className="w-full" variant="outline">{p.cta}</Button>
                   </Link>
                 </CardContent>
               </Card>
