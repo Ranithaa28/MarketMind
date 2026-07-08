@@ -1,7 +1,7 @@
 # MarketMind
   
 **Validate. Analyze. Launch.**
-
+   
 An AI-powered SaaS that takes a one-sentence startup idea and produces a full
 validation report: competitor analysis, market research, investment estimate,
 location recommendations, SWOT, Lean Canvas, Business Model Canvas, business
