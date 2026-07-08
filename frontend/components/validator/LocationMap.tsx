@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Map, { Marker, Popup, NavigationControl } from "react-map-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import { APIProvider, Map, AdvancedMarker, InfoWindow, Pin } from "@vis.gl/react-google-maps";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
@@ -21,17 +20,17 @@ interface LocationRecommendation {
 
 export function LocationMap({ recommendations }: { recommendations: LocationRecommendation[] }) {
   const [selected, setSelected] = useState<LocationRecommendation | null>(null);
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!recommendations?.length) return null;
 
-  if (!token) {
+  if (!apiKey) {
     return (
       <Card>
         <CardHeader><CardTitle>Recommended Locations</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Set NEXT_PUBLIC_MAPBOX_TOKEN to render the interactive map. Showing a list instead:
+            Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to render the interactive map. Showing a list instead:
           </p>
           {recommendations.map((r) => (
             <div key={`${r.country}-${r.city}`} className="rounded-lg border border-border p-3 text-sm">
@@ -68,54 +67,48 @@ export function LocationMap({ recommendations }: { recommendations: LocationReco
           </div>
           
           <div className="md:col-span-2 h-96 w-full overflow-hidden rounded-xl border border-border shadow-sm relative">
-            <Map
-              mapboxAccessToken={token}
-              initialViewState={{ longitude: recommendations[0].longitude, latitude: recommendations[0].latitude, zoom: 1.4 }}
-              style={{ width: "100%", height: "100%" }}
-              mapStyle="mapbox://styles/mapbox/dark-v11"
-            >
-              <NavigationControl position="top-right" />
-              {recommendations.map((r, i) => (
-                <Marker
-                  key={`${r.country}-${r.city}`}
-                  longitude={r.longitude}
-                  latitude={r.latitude}
-                  onClick={(e) => {
-                    e.originalEvent.stopPropagation();
-                    setSelected(r);
-                  }}
-                >
-                  <div className="flex flex-col items-center">
-                    <MapPin className={`h-7 w-7 cursor-pointer drop-shadow-md transition-colors ${selected === r ? 'text-primary' : 'text-primary/70 hover:text-primary'}`} fill="currentColor" />
-                    <span className="mt-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-sm">
-                      {i + 1}
-                    </span>
-                  </div>
-                </Marker>
-              ))}
-              {selected && (
-                <Popup
-                  longitude={selected.longitude}
-                  latitude={selected.latitude}
-                  onClose={() => setSelected(null)}
-                  closeOnClick={false}
-                  anchor="bottom"
-                  offset={15}
-                  className="rounded-lg shadow-lg"
-                >
-                  <div className="max-w-[250px] text-sm text-foreground bg-background p-1">
-                    <p className="font-semibold text-base">{selected.city}, {selected.country}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">{selected.reasons}</p>
-                    <div className="mt-3 flex items-center justify-between text-xs">
-                      <span className="font-medium">Competition:</span>
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary capitalize">
-                        {selected.competition_level}
+            <APIProvider apiKey={apiKey}>
+              <Map
+                defaultCenter={{ lat: recommendations[0].latitude, lng: recommendations[0].longitude }}
+                defaultZoom={2}
+                mapId="marketmind_location_map"
+                gestureHandling="greedy"
+                disableDefaultUI={false}
+              >
+                {recommendations.map((r, i) => (
+                  <AdvancedMarker
+                    key={`${r.country}-${r.city}`}
+                    position={{ lat: r.latitude, lng: r.longitude }}
+                    onClick={() => setSelected(r)}
+                  >
+                    <div className="flex flex-col items-center">
+                      <MapPin className={`h-7 w-7 cursor-pointer drop-shadow-md transition-colors ${selected === r ? 'text-primary' : 'text-primary/70 hover:text-primary'}`} fill="currentColor" />
+                      <span className="mt-1 rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-sm">
+                        {i + 1}
                       </span>
                     </div>
-                  </div>
-                </Popup>
-              )}
-            </Map>
+                  </AdvancedMarker>
+                ))}
+
+                {selected && (
+                  <InfoWindow
+                    position={{ lat: selected.latitude, lng: selected.longitude }}
+                    onCloseClick={() => setSelected(null)}
+                  >
+                    <div className="max-w-[250px] text-sm text-foreground bg-background p-1">
+                      <p className="font-semibold text-base">{selected.city}, {selected.country}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{selected.reasons}</p>
+                      <div className="mt-3 flex items-center justify-between text-xs">
+                        <span className="font-medium">Competition:</span>
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary capitalize">
+                          {selected.competition_level}
+                        </span>
+                      </div>
+                    </div>
+                  </InfoWindow>
+                )}
+              </Map>
+            </APIProvider>
           </div>
         </div>
       </CardContent>
