@@ -12,7 +12,7 @@ export default function Page() {
         {/* Right Column (Form) */}
         <div className="flex justify-center md:justify-start order-2 md:order-1">
           <SignUp 
-            forceRedirectUrl="/dashboard" 
+            fallbackRedirectUrl="/dashboard" 
             appearance={{
               elements: {
                 rootBox: "shadow-none w-full max-w-sm",

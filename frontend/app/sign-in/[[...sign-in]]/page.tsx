@@ -18,7 +18,7 @@ export default function Page() {
         {/* Right Column */}
         <div className="flex justify-center md:justify-end">
           <SignIn 
-            forceRedirectUrl="/dashboard" 
+            fallbackRedirectUrl="/dashboard"
             appearance={{
               elements: {
                 rootBox: "shadow-none w-full max-w-sm",
