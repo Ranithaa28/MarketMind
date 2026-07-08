@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Rocket } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -24,12 +24,12 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <SignedOut>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/sign-in">Login</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/sign-up">Sign up</Link>
-            </Button>
+            <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+              Login
+            </Link>
+            <Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
+              Sign up
+            </Link>
           </SignedOut>
           <SignedIn>
             <UserButton afterSignOutUrl="/" />

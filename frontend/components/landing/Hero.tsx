@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export function Hero() {
@@ -52,12 +52,10 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          <Button asChild size="lg" className="group">
-            <Link href="/sign-up">
-              Validate my idea for free
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </Button>
+          <Link href="/sign-up" className={buttonVariants({ size: "lg", className: "group" })}>
+            Validate my idea for free
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
           <a href="#features">
             <Button size="lg" variant="outline">See how it works</Button>
           </a>
