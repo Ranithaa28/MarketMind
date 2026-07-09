@@ -26,7 +26,9 @@ export function SwotGrid({ swot }: { swot: Swot }) {
       <CardContent className="grid gap-4 sm:grid-cols-2">
         {quadrants.map((q) => {
           const raw = swot[q.key];
-          const items = Array.isArray(raw) ? raw : (raw ? [String(raw)] : []);
+          const items = Array.isArray(raw) 
+            ? raw.map(item => typeof item === 'object' ? JSON.stringify(item) : String(item)) 
+            : (raw ? [typeof raw === 'object' ? JSON.stringify(raw) : String(raw)] : []);
           return (
             <div key={q.key} className={`rounded-xl border bg-transparent p-4 ${q.color}`}>
               <p className="mb-2 text-sm font-semibold">{q.label}</p>

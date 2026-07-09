@@ -2,8 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-function renderValue(v: unknown) {
-  if (Array.isArray(v)) return v.join(", ");
+function renderValue(v: unknown): string {
+  if (Array.isArray(v)) {
+    return v.map(item => typeof item === 'object' ? JSON.stringify(item) : String(item)).join(", ");
+  }
+  if (typeof v === 'object' && v !== null) {
+    return JSON.stringify(v);
+  }
   return String(v ?? "—");
 }
 

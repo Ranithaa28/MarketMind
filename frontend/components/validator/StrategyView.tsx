@@ -15,7 +15,9 @@ interface StrategyData {
 }
 
 function Section({ title, icon: Icon, content, list }: { title: string, icon: any, content?: string, list?: any }) {
-  const safeList = Array.isArray(list) ? list : (list ? [String(list)] : []);
+  const safeList = Array.isArray(list) 
+    ? list.map(item => typeof item === 'object' ? JSON.stringify(item) : String(item)) 
+    : (list ? [typeof list === 'object' ? JSON.stringify(list) : String(list)] : []);
   if (!content && safeList.length === 0) return null;
   
   return (
