@@ -4,28 +4,29 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-    --primary: 212 100% 48%; /* Electric Blue */
-    --primary-foreground: 0 0% 100%;
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 45%;
-    --border: 0 0% 88%;
-    --radius: 0.5rem; /* Crisper corners */
+    /* Forcing dark mode aesthetic on root as well to match "all pages connect same theme" */
+    --background: 223 26% 16%;
+    --foreground: 210 50% 98%;
+    --card: 223 24% 19%;
+    --card-foreground: 210 50% 98%;
+    --primary: 186 100% 50%;
+    --primary-foreground: 223 26% 16%;
+    --muted: 223 20% 25%;
+    --muted-foreground: 214 32% 70%;
+    --border: 223 20% 25%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 0%; /* Pitch Black */
-    --foreground: 0 0% 98%;
-    --card: 0 0% 7%; /* Very dark gray */
-    --card-foreground: 0 0% 98%;
-    --primary: 212 100% 55%; /* Lighter blue for dark mode */
-    --primary-foreground: 0 0% 100%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --border: 0 0% 18%;
+    --background: 223 26% 16%;
+    --foreground: 210 50% 98%;
+    --card: 223 24% 19%;
+    --card-foreground: 210 50% 98%;
+    --primary: 186 100% 50%;
+    --primary-foreground: 223 26% 16%;
+    --muted: 223 20% 25%;
+    --muted-foreground: 214 32% 70%;
+    --border: 223 20% 25%;
   }
 
   * {
@@ -39,20 +40,49 @@
 }
 
 .gradient-text {
-  /* No more rainbow gradients. Just clean accent gradient */
-  background: linear-gradient(90deg, hsl(var(--foreground)), hsl(var(--muted-foreground)));
+  background: linear-gradient(135deg, hsl(var(--primary)), #0088ff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(30, 36, 51, 0.6);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
 .dark .glass {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 36, 51, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.playful-card {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.playful-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 40px -10px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.dark .playful-card:hover {
+  box-shadow: 0 10px 40px -10px rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.stripe-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: 
+    radial-gradient(at 40% 20%, hsla(186,100%,50%,0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(210,100%,50%,0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(186,100%,50%,0.08) 0px, transparent 50%);
+  filter: blur(80px);
+  opacity: 1;
 }

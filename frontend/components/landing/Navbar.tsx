@@ -16,18 +16,17 @@ export function Navbar() {
           <span>MarketMind</span>
         </Link>
         <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#pricing" className="hover:text-foreground">Pricing</a>
-          <a href="#testimonials" className="hover:text-foreground">Testimonials</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
+          <a href="#features" className="hover:text-primary transition-colors">Features</a>
+          <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
+          <a href="#faq" className="hover:text-primary transition-colors">FAQ</a>
         </nav>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <SignedOut>
-            <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+            <Link href="/sign-in" className={buttonVariants({ variant: "ghost", size: "sm", className: "hover:text-primary" })}>
               Login
             </Link>
-            <Link href="/sign-up" className={buttonVariants({ size: "sm" })}>
+            <Link href="/sign-up" className={buttonVariants({ size: "sm", className: "bg-primary text-black hover:bg-[#00d4ff] shadow-[0_0_15px_rgba(0,229,255,0.4)]" })}>
               Sign up
             </Link>
           </SignedOut>

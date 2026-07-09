@@ -63,7 +63,9 @@ export function MarketCharts({ data }: { data: MarketResearch }) {
           <div>
             <p className="mb-1 text-xs font-medium text-muted-foreground">Key trends</p>
             <ul className="list-inside list-disc text-sm text-muted-foreground">
-              {data.trends.map((t) => <li key={t}>{t}</li>)}
+              {data.trends.map((t, idx) => (
+                <li key={idx}>{typeof t === 'object' ? JSON.stringify(t) : String(t)}</li>
+              ))}
             </ul>
           </div>
         )}
@@ -72,12 +74,18 @@ export function MarketCharts({ data }: { data: MarketResearch }) {
           <div>
             <p className="mb-1 text-xs font-medium text-muted-foreground">Customer pain points</p>
             <ul className="list-inside list-disc text-sm text-muted-foreground">
-              {data.customer_pain_points.map((t) => <li key={t}>{t}</li>)}
+              {data.customer_pain_points.map((t, idx) => (
+                <li key={idx}>{typeof t === 'object' ? JSON.stringify(t) : String(t)}</li>
+              ))}
             </ul>
           </div>
         )}
 
-        {data.methodology_note && <p className="text-xs italic text-muted-foreground">{data.methodology_note}</p>}
+        {data.methodology_note && (
+          <p className="text-xs italic text-muted-foreground">
+            {typeof data.methodology_note === 'object' ? JSON.stringify(data.methodology_note) : String(data.methodology_note)}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

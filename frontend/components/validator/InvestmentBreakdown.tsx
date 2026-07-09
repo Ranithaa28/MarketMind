@@ -66,7 +66,9 @@ export function InvestmentBreakdown({ data }: { data: Investment }) {
             <div>
               <p className="mb-1 text-xs font-medium text-muted-foreground">Assumptions</p>
               <ul className="list-inside list-disc text-xs text-muted-foreground">
-                {data.assumptions.map((a) => <li key={a}>{a}</li>)}
+                {data.assumptions.map((a, idx) => (
+                  <li key={idx}>{typeof a === 'object' ? JSON.stringify(a) : String(a)}</li>
+                ))}
               </ul>
             </div>
           )}

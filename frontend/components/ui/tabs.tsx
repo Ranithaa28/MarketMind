@@ -22,7 +22,7 @@ export function TabsList({ children, className }: { children: React.ReactNode; c
   return <div className={cn("flex flex-wrap gap-1 rounded-xl bg-muted p-1", className)}>{children}</div>;
 }
 
-export function TabsTrigger({ value, children }: { value: string; children: React.ReactNode }) {
+export function TabsTrigger({ value, children, className }: { value: string; children: React.ReactNode; className?: string }) {
   const ctx = React.useContext(TabsContext)!;
   const active = ctx.value === value;
   return (
@@ -30,8 +30,10 @@ export function TabsTrigger({ value, children }: { value: string; children: Reac
       onClick={() => ctx.setValue(value)}
       className={cn(
         "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-        active ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+        active ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground",
+        className
       )}
+      data-state={active ? "active" : "inactive"}
     >
       {children}
     </button>

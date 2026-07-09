@@ -21,9 +21,9 @@ function Section({ title, icon: Icon, content, list }: { title: string, icon: an
   if (!content && safeList.length === 0) return null;
   
   return (
-    <div className="rounded-xl border border-border bg-transparent p-5">
-      <div className="flex items-center gap-3 mb-4 border-b border-border pb-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground text-background">
+    <div className="rounded-2xl border border-border bg-card shadow-sm p-6 playful-card">
+      <div className="flex items-center gap-3 mb-4 border-b border-border/50 pb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon className="h-5 w-5" />
         </div>
         <h3 className="text-lg font-semibold text-foreground">{title}</h3>
@@ -51,8 +51,10 @@ export function StrategyView({ strategy }: { strategy: StrategyData }) {
   return (
     <Card className="border-0 shadow-none bg-transparent">
       <CardHeader className="px-0 pt-0">
-        <CardTitle className="text-2xl flex items-center gap-2">
-          <Briefcase className="h-6 w-6 text-primary" />
+        <CardTitle className="text-3xl font-extrabold flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Briefcase className="h-6 w-6" />
+          </div>
           Business Strategy Playbook
         </CardTitle>
         <p className="text-muted-foreground text-sm mt-1">

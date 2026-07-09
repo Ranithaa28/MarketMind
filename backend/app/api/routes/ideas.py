@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+import asyncio
 from sqlalchemy.orm import Session
+import redis.asyncio as aioredis
 
 from app.api.deps import get_or_create_db_user
 from app.db.models import Idea, IdeaStatus, User
 from app.db.session import get_db
 from app.schemas.idea import IdeaCreate, IdeaDetail, IdeaSummary
 from app.workers.tasks import validate_idea_task
+from app.core.config import get_settings
+
+settings = get_settings()
+redis_client = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
 router = APIRouter(prefix="/api/ideas", tags=["ideas"])
 
@@ -51,6 +57,21 @@ def get_idea(idea_id: str, db: Session = Depends(get_db), user: User = Depends(g
         raise HTTPException(status_code=404, detail="Idea not found")
     return idea
 
+
+@router.websocket("/{idea_id}/progress/ws")
+async def progress_websocket(websocket: WebSocket, idea_id: str):
+    await websocket.accept()
+    key = f"idea_progress:{idea_id}"
+    last_val = None
+    try:
+        while True:
+            val = await redis_client.get(key)
+            if val and val != last_val:
+                await websocket.send_text(val)
+                last_val = val
+            await asyncio.sleep(0.5)
+    except WebSocketDisconnect:
+        pass
 
 @router.post("/{idea_id}/revalidate", response_model=IdeaDetail)
 def revalidate_idea(idea_id: str, db: Session = Depends(get_db), user: User = Depends(get_or_create_db_user)):

@@ -17,13 +17,13 @@ const links = [
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-border bg-background p-4">
-      <Link href="/" className="mb-8 flex items-center gap-2 px-2 font-bold tracking-tight">
-        <Rocket className="h-5 w-5 text-primary" /> MarketMind
+    <aside className="flex h-screen w-64 flex-col border-r border-white/5 bg-[#1E2433]/80 backdrop-blur-xl p-4 shadow-[5px_0_30px_0_rgba(0,0,0,0.3)]">
+      <Link href="/" className="mb-8 flex items-center gap-2 px-2 font-bold tracking-tight text-white hover:text-primary transition-colors">
+        <Rocket className="h-5 w-5 text-primary drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" /> MarketMind
       </Link>
 
       <Link href="/dashboard/ideas/new">
-        <Button className="mb-6 w-full justify-start gap-2">
+        <Button className="mb-6 w-full justify-start gap-2 rounded-full bg-primary text-black hover:bg-[#00d4ff] shadow-[0_0_15px_rgba(0,229,255,0.3)] hover:shadow-[0_0_25px_rgba(0,229,255,0.5)] transition-all">
           <Plus className="h-4 w-4" /> New validation
         </Button>
       </Link>
@@ -36,8 +36,8 @@ export function Sidebar() {
               key={l.href}
               href={l.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
-                active ? "bg-muted text-foreground" : "text-muted-foreground"
+                "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-all hover:bg-primary/20 hover:text-primary hover:shadow-[0_0_10px_rgba(0,229,255,0.1)]",
+                active ? "bg-primary/20 text-primary shadow-[0_0_10px_rgba(0,229,255,0.1)]" : "text-muted-foreground"
               )}
             >
               <l.icon className="h-4 w-4" /> {l.label}

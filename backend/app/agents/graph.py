@@ -14,6 +14,7 @@ from langgraph.graph import END, StateGraph
 
 from app.agents.nodes import (
     IdeaState,
+    node_gatekeeper,
     node_business_strategy,
     node_competitor_analysis,
     node_investment_estimate,
@@ -41,6 +42,7 @@ def _safe(fn):
 def build_graph():
     graph = StateGraph(IdeaState)
 
+    graph.add_node("gatekeeper_node", _safe(node_gatekeeper))
     graph.add_node("understand_idea_node", _safe(node_understand_idea))
     graph.add_node("web_search_node", _safe(node_web_search))
     graph.add_node("competitor_analysis_node", _safe(node_competitor_analysis))
@@ -51,7 +53,14 @@ def build_graph():
     graph.add_node("business_strategy_node", _safe(node_business_strategy))
     graph.add_node("success_score_node", _safe(node_success_score))
 
-    graph.set_entry_point("understand_idea_node")
+    graph.set_entry_point("gatekeeper_node")
+
+    def route_gatekeeper(state: IdeaState) -> str:
+        if state.get("error"):
+            return END
+        return "understand_idea_node"
+    
+    graph.add_conditional_edges("gatekeeper_node", route_gatekeeper)
     graph.add_edge("understand_idea_node", "web_search_node")
     graph.add_edge("web_search_node", "competitor_analysis_node")
     graph.add_edge("competitor_analysis_node", "market_research_node")
@@ -68,9 +77,9 @@ def build_graph():
 _compiled_graph = None
 
 
-def run_validation_pipeline(raw_description: str) -> IdeaState:
+def run_validation_pipeline(raw_description: str, idea_id: str) -> IdeaState:
     global _compiled_graph
     if _compiled_graph is None:
         _compiled_graph = build_graph()
-    initial_state: IdeaState = {"raw_description": raw_description}
+    initial_state: IdeaState = {"raw_description": raw_description, "idea_id": idea_id}
     return _compiled_graph.invoke(initial_state)

@@ -16,9 +16,19 @@ export function ReportActions({ ideaId }: { ideaId: string }) {
     try {
       const api = await getApi();
       const res = await api.post(`/api/reports/${ideaId}/${fmt}`);
-      window.open(`${apiBaseUrl}${res.data.download_url}`, "_blank");
+      const fileRes = await api.get(res.data.download_url, { responseType: 'blob' });
+      
+      const blob = new Blob([fileRes.data]);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `startup-report.${fmt}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch {
-      toast.error("Couldn't generate the report. Try again once validation is complete.");
+      toast.error("Couldn't generate or download the report. Try again.");
     } finally {
       setGenerating(null);
     }

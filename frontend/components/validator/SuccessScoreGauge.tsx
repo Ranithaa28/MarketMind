@@ -35,14 +35,15 @@ export function SuccessScoreGauge({ score }: { score: SuccessScore }) {
               cy="70"
               r="54"
               fill="none"
-              stroke="hsl(258 90% 66%)"
+              stroke="#00E5FF"
               strokeWidth="12"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
               strokeLinecap="round"
               transform="rotate(-90 70 70)"
+              className="drop-shadow-[0_0_10px_rgba(0,229,255,0.5)]"
             />
-            <text x="70" y="66" textAnchor="middle" fontSize="28" fontWeight="700" fill="currentColor">
+            <text x="70" y="66" textAnchor="middle" fontSize="28" fontWeight="700" fill="#00E5FF" className="drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]">
               {score.overall_score}
             </text>
             <text x="70" y="86" textAnchor="middle" fontSize="11" fill="currentColor" opacity="0.6">

@@ -22,7 +22,7 @@ def validate_idea_task(idea_id: str) -> None:
         db.commit()
 
         try:
-            result = run_validation_pipeline(idea.raw_description)
+            result = run_validation_pipeline(idea.raw_description, str(idea.id))
         except Exception as exc:  # noqa: BLE001
             idea.status = IdeaStatus.FAILED
             idea.error_message = str(exc)

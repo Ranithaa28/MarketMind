@@ -31,7 +31,8 @@ const item = {
 
 export function Features() {
   return (
-    <section id="features" className="px-6 py-24">
+    <section id="features" className="px-6 py-24 relative overflow-hidden">
+      <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-primary/5 blur-[120px] mix-blend-screen" />
       <div className="mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -51,12 +52,12 @@ export function Features() {
         >
           {features.map((f) => (
             <motion.div key={f.title} variants={item}>
-              <Card className="h-full border-border bg-transparent shadow-none hover:bg-muted/30 transition-colors duration-500">
+              <Card className="h-full border border-primary/20 bg-[#1E2433]/80 backdrop-blur-sm shadow-[0_0_15px_rgba(0,229,255,0.03)] playful-card">
                 <CardHeader>
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-foreground text-background">
-                    <f.icon className="h-5 w-5" />
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-primary shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+                    <f.icon className="h-6 w-6" />
                   </div>
-                  <CardTitle className="text-lg font-semibold">{f.title}</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground tracking-wide">{f.title}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground leading-relaxed">{f.desc}</CardContent>
               </Card>

@@ -7,7 +7,8 @@ and lets the frontend render structured data (tables/charts) instead of
 free-form prose.
 """
 import json
-from typing import Any
+from typing import Any, Type, Optional
+from pydantic import BaseModel
 
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -26,9 +27,14 @@ def get_client() -> OpenAI:
 
 
 @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
-def generate_json(system_prompt: str, user_prompt: str, temperature: float = 0.3) -> dict[str, Any]:
+def generate_json(system_prompt: str, user_prompt: str, temperature: float = 0.3, pydantic_model: Optional[Type[BaseModel]] = None) -> dict[str, Any]:
     """Call the chat completions API and parse a strict-JSON response."""
     client = get_client()
+    
+    if pydantic_model:
+        schema = pydantic_model.model_json_schema()
+        system_prompt += f"\n\nRespond strictly with ONLY a JSON object that conforms to this JSON schema:\n```json\n{json.dumps(schema)}\n```\nIMPORTANT: Do NOT return the schema itself! Return the actual data values matching the schema keys."
+        
     response = client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         temperature=temperature,
@@ -54,10 +60,13 @@ def generate_json(system_prompt: str, user_prompt: str, temperature: float = 0.3
         parsed = json.loads(content)
         if not isinstance(parsed, dict):
             return {}
+        if pydantic_model:
+            # Validate and return a clean dict via Pydantic
+            validated = pydantic_model(**parsed)
+            return validated.model_dump()
         return parsed
-    except json.JSONDecodeError:
-        # Fall back to an empty structure rather than crashing the pipeline;
-        # the caller is responsible for validating required keys.
+    except Exception as e:
+        print(f"JSON Parsing Error: {e}")
         return {}
 
 

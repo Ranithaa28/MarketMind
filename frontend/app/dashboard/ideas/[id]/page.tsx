@@ -8,25 +8,16 @@ import { ResultsView } from "@/components/validator/ResultsView";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-const STAGES = [
-  "Understanding your idea",
-  "Searching the web",
-  "Analyzing competitors",
-  "Sizing the market",
-  "Estimating investment",
-  "Recommending locations",
-  "Building SWOT & canvases",
-  "Drafting business strategy",
-  "Calculating success score",
-];
+
 
 export default function IdeaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const getApi = useApiClient();
   const [idea, setIdea] = useState<IdeaDetail | null>(null);
-  const [stageIndex, setStageIndex] = useState(0);
+  const [wsMessage, setWsMessage] = useState("Initializing AI agents...");
+  const [retryCount, setRetryCount] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const stageRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     async function poll() {
@@ -35,17 +26,28 @@ export default function IdeaDetailPage() {
       setIdea(res.data);
       if (res.data.status === "complete" || res.data.status === "failed") {
         if (pollRef.current) clearInterval(pollRef.current);
-        if (stageRef.current) clearInterval(stageRef.current);
+        if (wsRef.current) wsRef.current.close();
       }
     }
     poll();
     pollRef.current = setInterval(poll, 4000);
-    stageRef.current = setInterval(() => setStageIndex((i) => Math.min(i + 1, STAGES.length - 1)), 6000);
+
+    // Set up WebSocket for real-time status
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = process.env.NEXT_PUBLIC_API_URL 
+      ? process.env.NEXT_PUBLIC_API_URL.replace(/^https?:\/\//, "") 
+      : window.location.host;
+    
+    wsRef.current = new WebSocket(`${protocol}//${host}/api/ideas/${id}/progress/ws`);
+    wsRef.current.onmessage = (event) => {
+      setWsMessage(event.data);
+    };
+
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
-      if (stageRef.current) clearInterval(stageRef.current);
+      if (wsRef.current) wsRef.current.close();
     };
-  }, [getApi, id]);
+  }, [getApi, id, retryCount]);
 
   if (!idea) {
     return (
@@ -61,7 +63,7 @@ export default function IdeaDetailPage() {
         <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <div>
-            <p className="font-medium">{STAGES[stageIndex]}...</p>
+            <p className="font-medium">{wsMessage}</p>
             <p className="text-sm text-muted-foreground">This usually takes 1-3 minutes.</p>
           </div>
         </CardContent>
@@ -82,8 +84,8 @@ export default function IdeaDetailPage() {
               const api = await getApi();
               await api.post(`/api/ideas/${id}/revalidate`);
               setIdea({ ...idea, status: "pending" });
-              setStageIndex(0);
-              // The interval will automatically start picking up the new status
+              setWsMessage("Initializing AI agents...");
+              setRetryCount(c => c + 1);
             }}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >

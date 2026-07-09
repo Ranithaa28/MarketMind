@@ -6,14 +6,30 @@ it updates. Keeping nodes small and single-purpose makes the graph in
 graph.py easy to follow and lets any node be retried/replaced independently.
 """
 from typing import Any, TypedDict
+import redis
 
 from app.agents.scoring import compute_success_score
 from app.agents.tools.search import gather_web_context
 from app.agents.tools.trends import get_trend_score
 from app.services.openai_client import generate_json
+from app.core.config import get_settings
+from app.agents.schemas import (
+    GatekeeperResult,
+    CoreConcept,
+    CompetitorAnalysis,
+    MarketResearch,
+    InvestmentEstimate,
+    LocationRecommendations,
+    SwotAndCanvases,
+    BusinessStrategy,
+    SuccessScoreRatings
+)
 
+settings = get_settings()
+redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
 
 class IdeaState(TypedDict, total=False):
+    idea_id: str
     raw_description: str
     title: str
     core_concept: dict[str, Any]
@@ -31,15 +47,31 @@ class IdeaState(TypedDict, total=False):
     error: str
 
 
+def publish_progress(state: IdeaState, message: str):
+    if "idea_id" in state:
+        redis_client.setex(f"idea_progress:{state['idea_id']}", 3600, message)
+
+
+def node_gatekeeper(state: IdeaState) -> dict:
+    publish_progress(state, "Validating idea coherence...")
+    system = (
+        "You are a gatekeeper. Evaluate if the given text is a coherent, "
+        "understandable business/startup idea. If it's random gibberish (e.g. 'asdfg') "
+        "or completely nonsensical, reject it. If it's a valid attempt at an idea, accept it. "
+    )
+    result = generate_json(system, state["raw_description"], pydantic_model=GatekeeperResult)
+    if not result.get("is_valid"):
+        return {"error": result.get("reason", "Invalid idea submitted.")}
+    return {}
+
+
 def node_understand_idea(state: IdeaState) -> dict:
+    publish_progress(state, "Understanding your idea...")
     system = (
         "You are a startup analyst. Extract a structured understanding of a raw "
-        "startup idea. Respond ONLY as JSON with keys: title (<=8 words), "
-        "problem, solution, category, target_customer, key_features (list of "
-        "strings), search_keywords (list of 3-5 short search-engine queries "
-        "useful for finding competitors and market data)."
+        "startup idea."
     )
-    result = generate_json(system, state["raw_description"])
+    result = generate_json(system, state["raw_description"], pydantic_model=CoreConcept)
     return {
         "core_concept": result,
         "title": result.get("title", state["raw_description"][:60]),
@@ -47,6 +79,7 @@ def node_understand_idea(state: IdeaState) -> dict:
 
 
 def node_web_search(state: IdeaState) -> dict:
+    publish_progress(state, "Searching the web for market context...")
     keywords = state.get("core_concept", {}).get("search_keywords") or [state["raw_description"][:60]]
     context: list[dict] = []
     for kw in keywords[:4]:
@@ -62,89 +95,81 @@ def node_web_search(state: IdeaState) -> dict:
 
 
 def node_competitor_analysis(state: IdeaState) -> dict:
+    publish_progress(state, "Analyzing competitors...")
     system = (
         "You are a market-intelligence analyst. Using the idea summary and web "
         "search snippets provided, identify real, named competitors worldwide "
         "where evidence supports them. If the snippets do not clearly name "
         "companies, use well-known category leaders you are confident exist, "
         "and mark 'source_confidence' as 'model_knowledge' vs 'web_evidence'. "
-        "Respond ONLY as JSON: {\"competitors\": [{name, description, pricing, "
-        "key_features: [], strengths: [], weaknesses: [], estimated_funding, "
-        "market_position, source_confidence}]}."
     )
     user = (
         f"Idea: {state.get('core_concept')}\n\n"
         f"Web snippets: {state.get('web_context')}"
     )
-    return {"competitors": generate_json(system, user)}
+    result = generate_json(system, user, pydantic_model=CompetitorAnalysis)
+    return {"competitors": result}
 
 
 def node_market_research(state: IdeaState) -> dict:
+    publish_progress(state, "Sizing the market...")
     system = (
-        "You are a market-sizing analyst. Estimate TAM/SAM/SOM (USD), industry "
-        "growth rate, key trends, future demand outlook, and 3-5 customer pain "
-        "points, using the idea, web snippets, and the Google Trends interest "
-        "signal provided. Be explicit that figures are estimates. Respond ONLY "
-        "as JSON: {tam_usd, sam_usd, som_usd, industry_growth_rate_pct, "
-        "trends: [], future_demand_outlook, customer_pain_points: [], "
-        "methodology_note}."
+        "You are a rigorous financial market-sizing analyst. You MUST use a bottom-up "
+        "Fermi estimation methodology to calculate TAM, SAM, and SOM (USD) with maximum "
+        "logical accuracy. You must define the target population, estimated adoption rate, "
+        "and ARPU (Average Revenue Per User) based on the web snippets provided. Ensure "
+        "strict logical consistency (TAM > SAM > SOM). "
+        "Be explicit that figures are estimates, but show the exact mathematical formulas used. "
     )
     user = (
         f"Idea: {state.get('core_concept')}\n"
         f"Trend signal: {state.get('trend_signal')}\n"
         f"Web snippets: {state.get('web_context')}"
     )
-    return {"market_research": generate_json(system, user)}
+    result = generate_json(system, user, pydantic_model=MarketResearch)
+    return {"market_research": result}
 
 
 def node_investment_estimate(state: IdeaState) -> dict:
+    publish_progress(state, "Estimating investment requirements...")
     system = (
-        "You are a startup CFO. Given the idea and its technical/market "
-        "complexity, estimate coarse-grained costs in USD for: development, "
-        "marketing, infrastructure, team, legal, operating, and derive monthly "
-        "cost, yearly cost, funding needed for 18 months runway, estimated "
-        "break-even timeframe, and a rough ROI estimate range. Respond ONLY as "
-        "JSON: {development_cost, marketing_cost, infrastructure_cost, "
-        "team_cost, legal_cost, monthly_operating_cost, yearly_operating_cost, "
-        "funding_needed, breakeven_estimate, roi_estimate, assumptions: []}."
+        "You are a rigorous startup CFO. You MUST use an itemized, bottom-up calculation "
+        "methodology to achieve maximum accuracy. Estimate specific headcounts, average "
+        "market salaries, specific server costs, and Customer Acquisition Cost (CAC). "
+        "Calculate coarse-grained costs in USD for: development, marketing, infrastructure, "
+        "team, legal, operating. Then derive monthly cost, yearly cost, funding needed for "
+        "18 months runway, break-even timeframe, and ROI. "
     )
-    return {"investment": generate_json(system, str(state.get("core_concept")))}
+    result = generate_json(system, str(state.get("core_concept")), pydantic_model=InvestmentEstimate)
+    return {"investment": result}
 
 
 def node_location_recommendation(state: IdeaState) -> dict:
+    publish_progress(state, "Recommending launch locations...")
     system = (
         "You are an international startup-ecosystem advisor. Recommend 3-5 "
         "countries (and a lead city in each) well suited to launching this "
         "idea, with lat/lng for the city, reasons, market opportunity, "
         "startup ecosystem strength, government support, tax benefits, and "
-        "competition level (low/medium/high). Respond ONLY as JSON: "
-        "{recommendations: [{country, city, latitude, longitude, reasons, "
-        "market_opportunity, ecosystem_strength, government_support, "
-        "tax_benefits, competition_level}]}."
+        "competition level (low/medium/high). "
     )
-    return {"locations": generate_json(system, str(state.get("core_concept")))}
+    result = generate_json(system, str(state.get("core_concept")), pydantic_model=LocationRecommendations)
+    return {"locations": result}
 
 
 def node_swot_and_canvases(state: IdeaState) -> dict:
+    publish_progress(state, "Building SWOT & business canvases...")
     system = (
         "You are a business strategist. Produce: (1) a SWOT analysis, (2) a "
         "Lean Canvas, and (3) a Business Model Canvas for this startup idea, "
-        "grounded in the market research and competitor data given. Respond "
-        "ONLY as JSON: {swot: {strengths: [], weaknesses: [], opportunities: "
-        "[], threats: []}, lean_canvas: {problem: [], solution: [], "
-        "key_metrics: [], unique_value_proposition, customer_segments: [], "
-        "channels: [], cost_structure: [], revenue_streams: []}, "
-        "business_model_canvas: {key_partners: [], key_activities: [], "
-        "key_resources: [], value_propositions: [], customer_relationships: "
-        "[], channels: [], customer_segments: [], cost_structure: [], "
-        "revenue_streams: []}}."
+        "grounded in the market research and competitor data given."
     )
     user = (
         f"Idea: {state.get('core_concept')}\n"
         f"Competitors: {state.get('competitors')}\n"
         f"Market research: {state.get('market_research')}"
     )
-    result = generate_json(system, user)
+    result = generate_json(system, user, pydantic_model=SwotAndCanvases)
     return {
         "swot": result.get("swot", {}),
         "lean_canvas": result.get("lean_canvas", {}),
@@ -153,19 +178,19 @@ def node_swot_and_canvases(state: IdeaState) -> dict:
 
 
 def node_business_strategy(state: IdeaState) -> dict:
+    publish_progress(state, "Drafting go-to-market strategy...")
     system = (
         "You are a go-to-market strategist. Define the business model, revenue "
         "streams, pricing model, marketing plan, go-to-market strategy, growth "
-        "strategy, monetization plan, and customer acquisition approach. "
-        "Respond ONLY as JSON: {business_model, revenue_streams: [], "
-        "pricing_model, marketing_plan: [], go_to_market_strategy: [], "
-        "growth_strategy: [], monetization_plan, customer_acquisition: []}."
+        "strategy, monetization plan, and customer acquisition approach."
     )
     user = f"Idea: {state.get('core_concept')}\nMarket research: {state.get('market_research')}"
-    return {"strategy": generate_json(system, user)}
+    result = generate_json(system, user, pydantic_model=BusinessStrategy)
+    return {"strategy": result}
 
 
 def node_success_score(state: IdeaState) -> dict:
+    publish_progress(state, "Calculating final success score...")
     system = (
         "You are a highly critical, brutal but fair venture capitalist evaluator. "
         "Most startup ideas fail. Rate these 10 factors for the idea, each 0-10, with "
@@ -174,8 +199,7 @@ def node_success_score(state: IdeaState) -> dict:
         "deserve 9-10. Do not blindly give 8s. Be extremely harsh on execution, risk, "
         "and competition. The factors are: market_demand, competition, innovation, "
         "technology_complexity, scalability, revenue_potential, execution_difficulty, "
-        "funding_availability, timing, risk. Respond ONLY as JSON: "
-        "{\\\"<factor>\\\": {\\\"score\\\": number, \\\"reason\\\": string}, ...} for all 10 factors."
+        "funding_availability, timing, risk. "
     )
     user = (
         f"Idea: {state.get('core_concept')}\n"
@@ -184,5 +208,5 @@ def node_success_score(state: IdeaState) -> dict:
         f"Investment: {state.get('investment')}\n"
         f"Trend signal: {state.get('trend_signal')}"
     )
-    factor_ratings = generate_json(system, user)
+    factor_ratings = generate_json(system, user, pydantic_model=SuccessScoreRatings)
     return {"success_score": compute_success_score(factor_ratings)}

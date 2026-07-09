@@ -1,17 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, CircleDot, Circle } from "lucide-react";
 
 const plans = [
-  { name: "Free", price: "$0", period: "/mo", features: ["1 idea validation / month", "Core market research", "Community support"], cta: "Start free" },
-  { name: "Pro", price: "$29", period: "/mo", highlight: false, features: ["Unlimited validations", "Full reports (PDF & DOCX)", "AI advisor chat", "Location recommendations"], cta: "Pay via Admin ID" },
-  { name: "Enterprise", price: "Custom", period: "", features: ["Team seats", "Priority support", "Custom integrations", "SLA"], cta: "Pay via Admin ID" },
+  { id: "free", name: "Free", price: "$0", period: "/mo", features: ["1 idea validation / month", "Core market research", "Community support"] },
+  { id: "pro", name: "Pro", price: "$29", period: "/mo", features: ["Unlimited validations", "Full reports (PDF & DOCX)", "AI advisor chat", "Location recommendations"] },
+  { id: "enterprise", name: "Enterprise", price: "Custom", period: "", features: ["Team seats", "Priority support", "Custom integrations", "SLA"] },
 ];
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const container = {
   hidden: { opacity: 0 },
@@ -29,6 +30,8 @@ const item = {
 };
 
 export function Pricing() {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
   return (
     <section id="pricing" className="px-6 py-24">
       <div className="mx-auto max-w-6xl">
@@ -51,9 +54,15 @@ export function Pricing() {
         >
           {plans.map((p) => (
             <motion.div key={p.name} variants={item}>
-              <Card className="h-full border-border bg-transparent shadow-none hover:bg-muted/30 transition-colors duration-500">
+              <Card 
+                className={`h-full border border-primary/20 transition-all duration-300 cursor-pointer playful-card backdrop-blur-sm ${selectedPlan === p.id ? 'ring-4 ring-primary/20 bg-primary/10 shadow-[0_0_20px_rgba(0,229,255,0.2)]' : 'bg-[#1E2433]/80 shadow-[0_0_15px_rgba(0,229,255,0.03)]'}`}
+                onClick={() => setSelectedPlan(p.id)}
+              >
                 <CardHeader>
-                  <CardTitle className="text-lg font-medium text-muted-foreground">{p.name}</CardTitle>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium text-muted-foreground">{p.name}</CardTitle>
+                    {selectedPlan === p.id ? <CircleDot className="text-primary" /> : <Circle className="text-muted-foreground" />}
+                  </div>
                   <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-5xl font-bold tracking-tight">{p.price}</span>
                     <span className="text-sm font-medium text-muted-foreground">{p.period}</span>
@@ -67,14 +76,29 @@ export function Pricing() {
                       </li>
                     ))}
                   </ul>
-                  <Link href="/sign-up">
-                    <Button className="w-full h-12" variant={p.name === 'Pro' ? 'default' : 'outline'}>{p.cta}</Button>
-                  </Link>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Dynamic CTA appearing only when plan selected */}
+        <AnimatePresence>
+          {selectedPlan && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="mt-12 mx-auto max-w-sm flex flex-col items-center"
+            >
+              <Link href="/sign-up" className="w-full">
+                <Button className="w-full h-14 text-lg rounded-full shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] hover:bg-[#00d4ff] bg-primary text-black transition-all" size="lg">
+                  {selectedPlan === 'free' ? 'Start Free Trial' : 'Continue to Checkout'}
+                </Button>
+              </Link>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

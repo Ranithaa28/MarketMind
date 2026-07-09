@@ -18,7 +18,10 @@ export default function BillingPage() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   async function handleUpgrade(plan: string) {
-    if (plan === "free") return;
+    if (plan === "free") {
+      toast.success("You are already on the Free plan.");
+      return;
+    }
     setLoadingPlan(plan);
     try {
       const api = await getApi();
@@ -53,7 +56,7 @@ export default function BillingPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {plans.map((p) => (
-          <Card key={p.id}>
+          <Card key={p.id} className="playful-card shadow-sm border-border bg-card">
             <CardHeader>
               <CardTitle>{p.name}</CardTitle>
               <CardDescription>{p.price}</CardDescription>
@@ -64,8 +67,8 @@ export default function BillingPage() {
                   <li key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> {f}</li>
                 ))}
               </ul>
-              <Button className="w-full" disabled={p.id === "free" || loadingPlan !== null} onClick={() => handleUpgrade(p.id)}>
-                {p.id === "free" ? "Current default" : loadingPlan === p.id ? "Redirecting..." : `Upgrade to ${p.name}`}
+              <Button className="w-full rounded-full" disabled={loadingPlan !== null} onClick={() => handleUpgrade(p.id)} variant={p.id === 'free' ? 'outline' : 'default'}>
+                {loadingPlan === p.id ? "Redirecting..." : p.id === "free" ? "Select Free" : `Upgrade to ${p.name}`}
               </Button>
             </CardContent>
           </Card>
