@@ -32,10 +32,7 @@ class GeneralChatRequest(BaseModel):
     history: list[dict[str, str]] = []
 
 @router.post("/general")
-def send_general_message(
-    payload: GeneralChatRequest,
-    user: User = Depends(get_or_create_db_user)
-):
+def send_general_message(payload: GeneralChatRequest):
     context_lines = ["--- CONVERSATION HISTORY ---"]
     for msg in payload.history:
         context_lines.append(f"{msg.get('role', 'user').upper()}: {msg.get('content', '')}")
