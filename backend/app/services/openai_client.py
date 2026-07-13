@@ -10,6 +10,7 @@ import json
 from typing import Any, Type, Optional
 from pydantic import BaseModel
 
+# pyrefly: ignore [missing-import]
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 

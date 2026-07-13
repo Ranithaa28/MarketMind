@@ -2,6 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -12,6 +13,7 @@ from sqlalchemy import (
     String,
     Text,
 )
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base

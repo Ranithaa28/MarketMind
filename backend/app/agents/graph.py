@@ -10,6 +10,7 @@ unit-testable. Errors in any node are caught here and stored on state rather
 than raising, so a partial report can still be returned to the user instead
 of a hard 500.
 """
+# pyrefly: ignore [missing-import]
 from langgraph.graph import END, StateGraph
 
 from app.agents.nodes import (
