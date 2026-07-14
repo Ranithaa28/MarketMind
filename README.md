@@ -35,19 +35,17 @@
 MarketMind is built on a modern, highly scalable full-stack architecture:
 
 - **Frontend**: Next.js 15 (App Router), React, Tailwind CSS, shadcn/ui.
-- **Backend**: Python, FastAPI, SQLAlchemy, Celery (for asynchronous AI pipelines).
+- **Backend**: Python, FastAPI, SQLAlchemy, BackgroundTasks (for asynchronous AI pipelines).
 - **AI Infrastructure**: LangGraph, OpenAI SDK, Tavily Web Search.
-- **Infrastructure**: Docker, Redis (message broker), PostgreSQL (pgvector).
+- **Infrastructure**: Docker, PostgreSQL.
 
 ```mermaid
 graph TD;
     Client[Next.js Frontend] -->|REST API| API[FastAPI Backend];
-    API -->|Async Tasks| Celery[Celery Workers];
-    Celery -->|State Machine| LangGraph[LangGraph Agents];
+    API -->|Async Background Tasks| LangGraph[LangGraph Agents];
     LangGraph -->|LLM Calls| OpenAI[OpenAI / Groq];
     LangGraph -->|Web Search| Tavily[Tavily Search API];
     API -->|Read/Write| DB[(PostgreSQL)];
-    Celery -->|Queue| Redis[(Redis)];
 ```
 
 ## 🛠️ The Validation Pipeline
