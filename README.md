@@ -5,6 +5,8 @@
 
   **Validate. Analyze. Launch.**
 
+  [🚀 Live Demo](https://market-mind-taupe.vercel.app)
+
   *An AI-powered SaaS that takes a one-sentence startup idea and produces a comprehensive, data-driven validation report in minutes.*
 
   [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
