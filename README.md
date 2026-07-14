@@ -5,7 +5,7 @@
 
   **Validate. Analyze. Launch.**
 
-  [🚀 Live Demo](https://market-mind-two.vercel.app)
+  [🚀 Live Demo](https://market-mind-taupe.vercel.app)
 
   *An AI-powered SaaS that takes a one-sentence startup idea and produces a comprehensive, data-driven validation report in minutes.*
 
