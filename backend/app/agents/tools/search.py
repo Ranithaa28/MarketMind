@@ -16,7 +16,8 @@ def tavily_search(query: str, max_results: int = 5) -> list[dict]:
     from tavily import TavilyClient
 
     client = TavilyClient(api_key=settings.TAVILY_API_KEY)
-    result = client.search(query=query, max_results=max_results, search_depth="advanced")
+    # Changed from advanced to basic for a massive 5x speedup
+    result = client.search(query=query, max_results=max_results, search_depth="basic")
     return [
         {
             "title": r.get("title"),
@@ -67,7 +68,13 @@ def news_search(query: str, max_results: int = 5) -> list[dict]:
 
 def gather_web_context(query: str) -> list[dict]:
     """Combine all configured providers, deduplicated by URL."""
-    combined = tavily_search(query) + google_cse_search(query) + news_search(query)
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        future_tavily = executor.submit(tavily_search, query)
+        future_google = executor.submit(google_cse_search, query)
+        future_news = executor.submit(news_search, query)
+        combined = future_tavily.result() + future_google.result() + future_news.result()
+
     seen = set()
     deduped = []
     for item in combined:

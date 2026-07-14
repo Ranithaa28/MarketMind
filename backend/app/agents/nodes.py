@@ -83,8 +83,13 @@ def node_web_search(state: IdeaState) -> dict:
     publish_progress(state, "Searching the web for market context...")
     keywords = state.get("core_concept", {}).get("search_keywords") or [state["raw_description"][:60]]
     context: list[dict] = []
-    for kw in keywords[:4]:
-        context.extend(gather_web_context(kw))
+    
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        results = list(executor.map(gather_web_context, keywords[:4]))
+        for r in results:
+            context.extend(r)
+            
     # Truncate content of each snippet to avoid massive payloads
     for c in context:
         if c.get("content") and isinstance(c["content"], str):
