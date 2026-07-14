@@ -1,27 +1,65 @@
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect, BackgroundTasks
 import asyncio
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
-# pyrefly: ignore [missing-import]
-import redis.asyncio as aioredis
 
 from app.api.deps import get_or_create_db_user
 from app.db.models import Idea, IdeaStatus, User
 from app.db.session import get_db
 from app.schemas.idea import IdeaCreate, IdeaDetail, IdeaSummary
-from app.workers.tasks import validate_idea_task
 from app.core.config import get_settings
+from app.core.progress import get_progress
+from app.agents.graph import run_validation_pipeline
+from app.db.session import SessionLocal
 
 settings = get_settings()
-redis_client = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
 router = APIRouter(prefix="/api/ideas", tags=["ideas"])
 
+def background_validate_idea(idea_id: str):
+    """Wrapper to run the validation pipeline and update the database."""
+    db = SessionLocal()
+    try:
+        idea = db.query(Idea).filter(Idea.id == idea_id).first()
+        if not idea:
+            return
+
+        idea.status = IdeaStatus.PROCESSING
+        db.commit()
+
+        # Run pipeline
+        final_state = run_validation_pipeline(idea.raw_description, str(idea.id))
+
+        if final_state.get("error"):
+            idea.status = IdeaStatus.FAILED
+            # store error somewhere if needed
+        else:
+            idea.title = final_state.get("title", idea.title)
+            idea.status = IdeaStatus.COMPLETED
+            idea.core_concept = final_state.get("core_concept")
+            idea.competitors = final_state.get("competitors")
+            idea.market_research = final_state.get("market_research")
+            idea.investment = final_state.get("investment")
+            idea.locations = final_state.get("locations")
+            idea.swot = final_state.get("swot")
+            idea.lean_canvas = final_state.get("lean_canvas")
+            idea.business_model_canvas = final_state.get("business_model_canvas")
+            idea.strategy = final_state.get("strategy")
+            idea.success_score = final_state.get("success_score")
+
+        db.commit()
+    except Exception as e:
+        print(f"Validation failed for idea {idea_id}: {e}")
+        idea.status = IdeaStatus.FAILED
+        db.commit()
+    finally:
+        db.close()
 
 @router.post("", response_model=IdeaDetail, status_code=201)
 def create_idea(
     payload: IdeaCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     user: User = Depends(get_or_create_db_user),
 ):
@@ -35,9 +73,7 @@ def create_idea(
     db.commit()
     db.refresh(idea)
 
-    # Kick off the LangGraph pipeline asynchronously via Celery so the
-    # request returns immediately; the frontend polls GET /api/ideas/{id}.
-    validate_idea_task.delay(idea.id)
+    background_tasks.add_task(background_validate_idea, str(idea.id))
     return idea
 
 
@@ -64,11 +100,10 @@ def get_idea(idea_id: str, db: Session = Depends(get_db), user: User = Depends(g
 @router.websocket("/{idea_id}/progress/ws")
 async def progress_websocket(websocket: WebSocket, idea_id: str):
     await websocket.accept()
-    key = f"idea_progress:{idea_id}"
     last_val = None
     try:
         while True:
-            val = await redis_client.get(key)
+            val = get_progress(idea_id)
             if val and val != last_val:
                 await websocket.send_text(val)
                 last_val = val
@@ -77,18 +112,28 @@ async def progress_websocket(websocket: WebSocket, idea_id: str):
         pass
 
 @router.post("/{idea_id}/revalidate", response_model=IdeaDetail)
-def revalidate_idea(idea_id: str, db: Session = Depends(get_db), user: User = Depends(get_or_create_db_user)):
+def revalidate_idea(
+    idea_id: str, 
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db), 
+    user: User = Depends(get_or_create_db_user)
+):
     idea = db.query(Idea).filter(Idea.id == idea_id, Idea.user_id == user.id).first()
     if idea is None:
         raise HTTPException(status_code=404, detail="Idea not found")
     idea.status = IdeaStatus.PENDING
     db.commit()
-    validate_idea_task.delay(idea.id)
+    background_tasks.add_task(background_validate_idea, str(idea.id))
     return idea
 
 
 @router.post("/{idea_id}/duplicate", response_model=IdeaDetail, status_code=201)
-def duplicate_idea(idea_id: str, db: Session = Depends(get_db), user: User = Depends(get_or_create_db_user)):
+def duplicate_idea(
+    idea_id: str, 
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db), 
+    user: User = Depends(get_or_create_db_user)
+):
     original = db.query(Idea).filter(Idea.id == idea_id, Idea.user_id == user.id).first()
     if original is None:
         raise HTTPException(status_code=404, detail="Idea not found")
@@ -96,7 +141,7 @@ def duplicate_idea(idea_id: str, db: Session = Depends(get_db), user: User = Dep
     db.add(copy)
     db.commit()
     db.refresh(copy)
-    validate_idea_task.delay(copy.id)
+    background_tasks.add_task(background_validate_idea, str(copy.id))
     return copy
 
 

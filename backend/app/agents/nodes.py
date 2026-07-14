@@ -6,14 +6,13 @@ it updates. Keeping nodes small and single-purpose makes the graph in
 graph.py easy to follow and lets any node be retried/replaced independently.
 """
 from typing import Any, TypedDict
-# pyrefly: ignore [missing-import]
-import redis
 
 from app.agents.scoring import compute_success_score
 from app.agents.tools.search import gather_web_context
 from app.agents.tools.trends import get_trend_score
 from app.services.openai_client import generate_json
 from app.core.config import get_settings
+from app.core.progress import set_progress
 from app.agents.schemas import (
     GatekeeperResult,
     CoreConcept,
@@ -27,7 +26,6 @@ from app.agents.schemas import (
 )
 
 settings = get_settings()
-redis_client = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
 
 class IdeaState(TypedDict, total=False):
     idea_id: str
@@ -50,7 +48,7 @@ class IdeaState(TypedDict, total=False):
 
 def publish_progress(state: IdeaState, message: str):
     if "idea_id" in state:
-        redis_client.setex(f"idea_progress:{state['idea_id']}", 3600, message)
+        set_progress(state["idea_id"], message)
 
 
 def node_gatekeeper(state: IdeaState) -> dict:

@@ -16,47 +16,17 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-
   backend:
     build: ./backend
     restart: unless-stopped
     env_file: ./backend/.env
     environment:
       DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/marketmind
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/2
     ports:
       - "8000:7860"
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
-    volumes:
-      - ./backend:/app
-      - reports_data:/tmp/reports
-
-  celery_worker:
-    build: ./backend
-    restart: unless-stopped
-    command: celery -A app.core.celery_app:celery_app worker --loglevel=info
-    env_file: ./backend/.env
-    environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/marketmind
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/1
-      CELERY_RESULT_BACKEND: redis://redis:6379/2
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
     volumes:
       - ./backend:/app
       - reports_data:/tmp/reports
