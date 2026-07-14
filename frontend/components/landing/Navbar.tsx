@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Rocket } from "lucide-react";
@@ -12,7 +13,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/70 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <Rocket className="h-5 w-5 text-primary" />
+          <Image src="/logo.png" alt="MarketMind Logo" width={28} height={28} className="rounded-sm" />
           <span>MarketMind</span>
         </Link>
         <nav className="hidden gap-8 text-sm text-muted-foreground md:flex">

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Ranithaa28/MarketMind/main/frontend/public/grid.svg" alt="MarketMind Logo" width="120" height="120">
+  <img src="https://raw.githubusercontent.com/Ranithaa28/MarketMind/main/frontend/public/logo.png" alt="MarketMind Logo" width="120" height="120">
   
   # MarketMind
 

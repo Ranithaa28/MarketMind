@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { LayoutDashboard, Lightbulb, CreditCard, Rocket, Plus } from "lucide-react";
@@ -19,7 +20,7 @@ export function Sidebar() {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-white/5 bg-[#1E2433]/80 backdrop-blur-xl p-4 shadow-[5px_0_30px_0_rgba(0,0,0,0.3)]">
       <Link href="/" className="mb-8 flex items-center gap-2 px-2 font-bold tracking-tight text-white hover:text-primary transition-colors">
-        <Rocket className="h-5 w-5 text-primary drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" /> MarketMind
+        <Image src="/logo.png" alt="MarketMind Logo" width={28} height={28} className="rounded-sm" /> MarketMind
       </Link>
 
       <Link href="/dashboard/ideas/new">
