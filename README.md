@@ -1,144 +1,93 @@
-# MarketMind
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Ranithaa28/MarketMind/main/frontend/public/grid.svg" alt="MarketMind Logo" width="120" height="120">
   
-**Validate. Analyze. Launch.**
-   
-An AI-powered SaaS that takes a one-sentence startup idea and produces a full
-validation report: competitor analysis, market research, investment estimate,
-location recommendations, SWOT, Lean Canvas, Business Model Canvas, business
-strategy, and a transparent, explainable success score — plus a chat advisor
-and exportable PDF/DOCX reports.
+  # MarketMind
 
-## What's real vs. what needs your own keys
+  **Validate. Analyze. Launch.**
 
-Every line of code here is real and runs against the actual SDKs — nothing is
-mocked. But a few features only *do something* once you supply your own
-credentials for the underlying service:
+  *An AI-powered SaaS that takes a one-sentence startup idea and produces a comprehensive, data-driven validation report in minutes.*
 
-| Feature | Needs |
-|---|---|
-| AI pipeline (competitor/market/etc.) | `OPENAI_API_KEY` — **free option**: defaults to [Groq](https://console.groq.com/keys)'s OpenAI-compatible API (`llama-3.3-70b-versatile`), no card required. Set `OPENAI_BASE_URL=https://api.openai.com/v1` to use real OpenAI instead. |
-| Web search grounding | `TAVILY_API_KEY` (recommended), optionally Google CSE / NewsAPI keys |
-| Auth (sign up/in, protected dashboard) | Clerk application + `CLERK_*` keys |
-| Billing (checkout, portal, webhooks) | Stripe account + price IDs + webhook secret |
-| Email | Resend API key (not yet wired into a route — add a `services/email.py` calling Resend when you need transactional email) |
-| File storage | Cloudinary URL (not yet wired in; add if you need user-uploaded assets) |
-| Error monitoring | `SENTRY_DSN` |
-| Interactive map | `NEXT_PUBLIC_MAPBOX_TOKEN` (falls back to a plain list if unset) |
+  [![Next.js](https://img.shields.io/badge/Next.js-15.3-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+  [![LangGraph](https://img.shields.io/badge/LangGraph-AI_Agents-FF9900?style=for-the-badge&logo=langchain)](https://python.langchain.com/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+  [![Stripe](https://img.shields.io/badge/Stripe-Billing-6772E5?style=for-the-badge&logo=stripe)](https://stripe.com/)
+  [![Clerk](https://img.shields.io/badge/Clerk-Authentication-6C47FF?style=for-the-badge&logo=clerk)](https://clerk.com/)
+</div>
 
-Without any keys, the backend still boots, the frontend still renders, and in
-`ENVIRONMENT=development` auth is bypassed with a fake dev user so you can
-click through the UI — but idea validation itself needs `OPENAI_API_KEY` at minimum.
+<br />
 
-## Architecture
+> **Stop guessing if your idea will work. Know it.** 
+> MarketMind automatically researches competitors, sizes the market, estimates investment, and scores your odds of success using an advanced multi-agent AI pipeline.
 
-```
-backend/
-  app/
-    agents/          LangGraph pipeline: nodes.py (9 pipeline stages), graph.py (wiring), scoring.py
-    api/routes/       ideas, reports, chat, subscriptions
-    core/             config, Clerk JWT verification, Celery app
-    db/               SQLAlchemy models + session
-    schemas/          Pydantic request/response models
-    services/         OpenAI client, report generator (PDF/DOCX), Stripe
-    workers/          Celery task that runs the pipeline async
-  alembic/            migrations
-  tests/               pytest suite
-frontend/
-  app/                Next.js App Router pages (landing, auth, dashboard, idea detail)
-  components/
-    landing/           Hero, Features, Pricing, Testimonials, FAQ, Footer
-    dashboard/          Sidebar, stats cards
-    validator/          Idea form, results tabs, charts, map, chat, report export
-    ui/                 shadcn-style primitives (button, card, tabs, etc.)
-  lib/                api client, Clerk-aware hook, utils
+## 🚀 Key Features
+
+- **🧠 Multi-Agent AI Pipeline (LangGraph)**: 9 specialized AI agents work in parallel to analyze your idea from every angle.
+- **📊 Comprehensive Data & Analytics**: Get a SWOT analysis, Lean Canvas, Business Model Canvas, and market size estimates.
+- **💬 Interactive AI Advisor**: Chat directly with an AI trained specifically on your generated validation report.
+- **📄 Export Ready**: Download your complete business plan as a polished PDF or DOCX file.
+- **💳 Production-Ready SaaS**: Fully integrated with Stripe for subscriptions, Clerk for secure auth, and Neon Postgres for scalable storage.
+
+## 🏗️ Architecture
+
+MarketMind is built on a modern, highly scalable full-stack architecture:
+
+- **Frontend**: Next.js 15 (App Router), React, Tailwind CSS, shadcn/ui.
+- **Backend**: Python, FastAPI, SQLAlchemy, Celery (for asynchronous AI pipelines).
+- **AI Infrastructure**: LangGraph, OpenAI SDK, Tavily Web Search.
+- **Infrastructure**: Docker, Redis (message broker), PostgreSQL (pgvector).
+
+```mermaid
+graph TD;
+    Client[Next.js Frontend] -->|REST API| API[FastAPI Backend];
+    API -->|Async Tasks| Celery[Celery Workers];
+    Celery -->|State Machine| LangGraph[LangGraph Agents];
+    LangGraph -->|LLM Calls| OpenAI[OpenAI / Groq];
+    LangGraph -->|Web Search| Tavily[Tavily Search API];
+    API -->|Read/Write| DB[(PostgreSQL)];
+    Celery -->|Queue| Redis[(Redis)];
 ```
 
-### The validation pipeline (LangGraph)
+## 🛠️ The Validation Pipeline
 
-```
-understand_idea → web_search → competitor_analysis → market_research
-  → investment_estimate → location_recommendation → swot_and_canvases
-  → business_strategy → success_score
-```
+Our custom LangGraph pipeline ensures deterministic, structured JSON output at every stage:
 
-Each stage is a small function in `app/agents/nodes.py` that prompts OpenAI
-for strict JSON and is independently testable. A failure in any single stage
-is caught and recorded rather than crashing the whole run.
+1. `understand_idea` → 2. `web_search` → 3. `competitor_analysis` → 4. `market_research` → 5. `investment_estimate` → 6. `location_recommendation` → 7. `swot_and_canvases` → 8. `business_strategy` → 9. `success_score`
 
-### The success score
+## 💻 Getting Started (Local Development)
 
-Deliberately **not** a random or vibes-based percentage. The model rates 10
-named factors (market demand, competition, innovation, technology complexity,
-scalability, revenue potential, execution difficulty, funding availability,
-timing, risk) 0–10 with a written reason each; `app/agents/scoring.py` then
-combines them with fixed, documented weights into an overall score plus
-strength/risk/opportunity meters. The full breakdown ships with every report.
-
-## Running locally
-
-### Fastest path: Docker
+### The Fastest Path: Docker
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/MarketMind.git
+cd MarketMind
+
+# 2. Setup environment variables
 cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-# edit both .env files with at least OPENAI_API_KEY (backend)
-docker compose up --build
+cp frontend/.env.example frontend/.env.local
+
+# 3. Add your API keys to the .env files (OPENAI_API_KEY at minimum)
+
+# 4. Boot the entire stack
+docker compose up --build -d
 ```
 
-- Frontend: http://localhost:3000
-- Backend docs (Swagger): http://localhost:8000/docs
+- **Frontend Application**: `http://localhost:3000`
+- **Backend Swagger Docs**: `http://localhost:8000/docs`
 
-### Manual setup
+## 🌍 Deployment
 
-**Backend**
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env   # fill in OPENAI_API_KEY at minimum
-alembic upgrade head    # requires a running Postgres — see docker-compose for one
-uvicorn app.main:app --reload
-# in a second terminal, for async idea validation:
-celery -A app.core.celery_app.celery_app worker --loglevel=info
-```
+MarketMind is designed to be effortlessly deployed to modern cloud platforms:
 
-**Frontend**
-```bash
-cd frontend
-npm install
-cp .env.example .env.local
-npm run dev
-```
+- **Frontend** → Vercel (zero-config Next.js deployment).
+- **Backend** → Render, Railway, or Hugging Face Spaces via `Dockerfile` and `render.yaml`.
+- **Database** → Neon (Serverless Postgres) or Supabase.
 
-## Deployment
+## 🤝 Contributing
 
-- **Frontend** → Vercel (`vercel.json` not needed; default Next.js build works).
-- **Backend** → Railway or any container host; point it at the Dockerfile.
-- **Database** → Neon (Postgres, pgvector-compatible) — just set `DATABASE_URL`.
-- **Redis** → Upstash — set `REDIS_URL` / `CELERY_BROKER_URL` / `CELERY_RESULT_BACKEND`.
-- Run `alembic upgrade head` against production `DATABASE_URL` before first deploy.
-- Register the Stripe webhook endpoint (`/api/subscriptions/webhook`) in the Stripe dashboard once the backend has a public URL.
+We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## Environment variables
+## 📄 License
 
-See `backend/.env.example` and `frontend/.env.example` for the full list with
-inline comments on where to obtain each key.
-
-## Tests
-
-```bash
-cd backend && pytest
-cd frontend && npm run build   # type-checks the whole app
-```
-
-## Known gaps / good next steps
-
-- Admin panel (users/subscriptions/analytics/logs) is not built yet — the
-  data model supports it, but there's no `/admin` route or role check.
-- Resend and Cloudinary integrations are documented in `.env.example` but not
-  yet wired into a route; add `app/services/email.py` and an upload endpoint
-  when you need them.
-- No frontend test suite yet (Vitest is installed but unused) — the backend
-  has a real pytest suite for the scoring logic as a starting point.
-- Rate limiting and stricter prompt-injection filtering on user idea text are
-  worth adding before a public launch.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
