@@ -33,7 +33,7 @@ def background_validate_idea(idea_id: str):
 
         if final_state.get("error"):
             idea.status = IdeaStatus.FAILED
-            # store error somewhere if needed
+            idea.error_message = final_state.get("error")
         else:
             idea.title = final_state.get("title", idea.title)
             idea.status = IdeaStatus.COMPLETED
