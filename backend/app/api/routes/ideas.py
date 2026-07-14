@@ -25,7 +25,7 @@ def background_validate_idea(idea_id: str):
         if not idea:
             return
 
-        idea.status = IdeaStatus.PROCESSING
+        idea.status = IdeaStatus.RUNNING
         db.commit()
 
         # Run pipeline
@@ -33,10 +33,10 @@ def background_validate_idea(idea_id: str):
 
         if final_state.get("error"):
             idea.status = IdeaStatus.FAILED
-            idea.error_message = final_state.get("error")
+            # store error somewhere if needed
         else:
             idea.title = final_state.get("title", idea.title)
-            idea.status = IdeaStatus.COMPLETED
+            idea.status = IdeaStatus.COMPLETE
             idea.core_concept = final_state.get("core_concept")
             idea.competitors = final_state.get("competitors")
             idea.market_research = final_state.get("market_research")
