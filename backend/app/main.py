@@ -1,8 +1,12 @@
 from contextlib import asynccontextmanager
 
+# pyrefly: ignore [missing-import]
 import sentry_sdk
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, Request
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 
 from app.api.routes import chat, ideas, reports, subscriptions

@@ -7,20 +7,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const [mounted, setMounted] = React.useState(false);
   const { theme, setTheme } = useTheme();
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <Button variant="ghost" size="icon" disabled>
-        <Sun className="h-[1.2rem] w-[1.2rem] opacity-50" />
-      </Button>
-    );
-  }
 
   return (
     <Button

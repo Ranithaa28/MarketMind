@@ -64,11 +64,11 @@ def generate_json(system_prompt: str, user_prompt: str, temperature: float = 0.3
         if pydantic_model:
             # Validate and return a clean dict via Pydantic
             validated = pydantic_model(**parsed)
-            return validated.model_dump(mode="json")
+            return validated.model_dump()
         return parsed
     except Exception as e:
         print(f"JSON Parsing Error: {e}")
-        raise e
+        return {}
 
 
 @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
